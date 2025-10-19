@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lighter — Hub (Explorer + Leaderboard + Quiz) — Live WS Integrated</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Lighter — Hub (Live Explorer + Leaderboard + Quiz)</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -17,110 +17,48 @@
       --radius: 14px;
       --transition: 0.3s ease;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      background: var(--bg-main);
-      color: var(--text-light);
-      font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
-      padding: 20px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-    }
-    .container {
-      width:100%;
-      max-width:980px;
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      position: relative;
-    }
-    .header {
-      padding:20px 24px;
-      background: linear-gradient(45deg, rgba(74,222,128,0.08), rgba(34,211,238,0.08));
-      border-bottom:1px solid rgba(255,255,255,0.02);
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .brand { display:flex; gap:12px; align-items:center; }
-    .logo { width:48px;height:48px;border-radius:10px;background:#071425;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent1); font-size:1.2rem; }
-    .title h1 { font-size:1.2rem; margin:0; letter-spacing:0.4px; }
-    .title p { margin:0;color:var(--text-muted);font-size:0.85rem; }
-    .nav { display:flex;gap:8px;align-items:center; }
-    .nav button { background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text-light);padding:8px 12px;border-radius:10px;cursor:pointer; }
-    .nav button.active { background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#052023; border:none; font-weight:700; }
-    .content { padding:20px 24px; display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start; }
-    .main { min-height:400px; }
-    .panel { background:var(--card-bg); border-radius:12px; padding:18px; border:1px solid var(--border-color); }
-    .section { display:none; }
-    .section.active { display:block; animation: fadeIn 0.35s var(--transition); }
-    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
-    .intro { text-align:center; }
-    .intro h2 { font-size:1.5rem; margin-bottom:8px; }
-    .intro p { font-size:0.96rem; line-height:1.6; color:var(--text-muted); margin-bottom:14px; }
-    .btn { padding:10px 20px; background: var(--accent2); color:#fff; font-weight:600; border:none; border-radius: 12px; cursor:pointer; }
-    .btn.ghost { background:transparent;border:1px solid rgba(255,255,255,0.04); color:var(--text-light); }
-    .loader { display:flex; justify-content:center; align-items:center; height:120px; }
-    .loader span { width:10px; height:10px; margin:0 5px; background: var(--accent2); border-radius:50%; display:inline-block; animation: bounce 0.6s infinite alternate; }
-    .question-counter { text-align:center; color: var(--text-muted); margin-bottom:12px; font-size:0.95rem; }
-    .progress-bar { width:100%; height:8px; background: var(--border-color); border-radius:6px; overflow:hidden; margin-bottom:18px; }
-    .progress-fill { height:100%; width:0%; background: var(--accent1); transition: width var(--transition); }
-    .question-card { background: transparent; padding:16px; border-radius:8px; margin-bottom:20px; }
-    .question-card h3 { font-size:1.12rem; margin-bottom:12px; color: var(--text-light); }
-    .options { display:grid; gap:12px; }
-    .option { padding:12px 14px; background:#222631; border:2px solid #2e343c; border-radius:12px; cursor:pointer; transition:all var(--transition); }
-    .option:hover { transform:translateY(-2px); border-color:var(--accent1); }
-    .option.correct { border-color:#51cf66; background:rgba(81,207,102,0.08); }
-    .option.incorrect { border-color:#f03e3e; background:rgba(240,62,62,0.06); }
-    .feedback { text-align:center; margin-top:10px; font-size:0.98rem; display:none; }
-    .explorer-controls { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
-    .explorer-controls input[type="text"] { flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04); background:transparent;color:var(--text-light); }
-    .kpi-row { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
-    .kpi { padding:10px 12px; background:#071427;border-radius:10px; border:1px solid rgba(255,255,255,0.02); min-width:120px; }
-    .kpi small { display:block; color:var(--text-muted); font-size:12px; }
-    .kpi strong { display:block; font-size:16px; margin-top:6px; }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
-    thead th { text-align:left; color:var(--text-muted); padding:8px 6px; font-weight:600; }
-    tbody td { padding:10px 6px; border-top:1px solid rgba(255,255,255,0.02); }
-    .leaderboard-rows { max-height:380px; overflow:auto; border-radius:8px; }
-    .small { font-size:12px; color:var(--text-muted); }
-    .results { text-align:center; padding:20px; }
-    .results .score { font-size:2.2rem; margin:14px 0; background: linear-gradient(45deg, var(--accent2), var(--accent1)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .chart-box { width:100%; max-width:360px; margin:0 auto; }
-    .quick-links { display:flex; align-items:center; justify-content:center; height:90px; text-align:center; border-radius:8px; padding:12px; }
-    .quick-links p { margin:0; font-weight:600; color:var(--text-light); }
-    @media(max-width:980px){
-      .content { grid-template-columns:1fr; }
-      .header { flex-direction:column; gap:12px; align-items:flex-start; }
-      .leaderboard-rows { max-height:260px; }
-    }
-    /* status chips */
-    .status { display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700 }
-    .st-ok { background:#0b3b2e;color:#8ef3b0 }
-    .st-bad { background:#3b0b0b;color:#feb2b2 }
-    pre{ background:#071016;padding:10px;border-radius:8px;overflow:auto;color:#cfeff8; max-height:260px; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg-main);color:var(--text-light);font-family:'Poppins',sans-serif;padding:18px;display:flex;justify-content:center}
+    .container{width:100%;max-width:980px;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.7)}
+    .header{display:flex;justify-content:space-between;align-items:center;padding:18px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:48px;height:48px;border-radius:10px;background:#071425;display:flex;align-items:center;justify-content:center;color:var(--accent1);font-weight:700;font-size:1.2rem}
+    .title h1{font-size:1.2rem;margin:0}
+    .title p{margin:0;color:var(--text-muted);font-size:0.85rem}
+    .nav{display:flex;gap:8px}
+    .nav button{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text-light);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .nav button.active{background:linear-gradient(90deg,var(--accent2),var(--accent1));color:#052023;font-weight:700;border:none}
+    .content{display:grid;grid-template-columns:1fr 340px;gap:18px;padding:18px}
+    .panel{background:var(--card-bg);padding:14px;border-radius:10px;border:1px solid var(--border-color)}
+    .section{display:none}
+    .section.active{display:block}
+    .small{font-size:13px;color:var(--text-muted)}
+    input,select,textarea,button{font-family:inherit}
+    input[type="text"], input[type="url"]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text-light)}
+    .btn{padding:8px 14px;border-radius:10px;border:0;background:var(--accent2);color:#051b1b;font-weight:600;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text-light)}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+    th,td{padding:8px;border-top:1px solid rgba(255,255,255,0.02);text-align:left}
+    .leaderboard-rows{max-height:360px;overflow:auto}
+    .status{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700}
+    .st-ok{background:#0b3b2e;color:#8ef3b0}
+    .st-bad{background:#3b0b0b;color:#feb2b2}
+    pre{background:#071016;padding:10px;border-radius:8px;max-height:260px;overflow:auto;color:#cfeff8}
+    .kpi-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .kpi{background:#071427;padding:8px;border-radius:8px;min-width:120px;border:1px solid rgba(255,255,255,0.02)}
+    @media(max-width:980px){.content{grid-template-columns:1fr}.leaderboard-rows{max-height:200px}}
   </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
-
     <div class="header">
       <div class="brand">
         <div class="logo">L</div>
         <div class="title">
           <h1>Lighter Hub</h1>
-          <p>IQ Quiz • Wallet Explorer • Live Leaderboard</p>
+          <p>Live Explorer • Leaderboard • IQ Quiz</p>
         </div>
       </div>
-
-      <!-- top-right nav: Explorer -> Leaderboard -> Quiz -->
       <div class="nav" id="nav">
         <button id="nav-explorer" onclick="showSection('explorer')">Explorer</button>
         <button id="nav-leader" onclick="showSection('leaderboard')">Leaderboard</button>
@@ -131,36 +69,36 @@
     <div class="content">
       <div class="main">
 
-        <!-- EXPLORER (LEFT TOP) -->
+        <!-- Explorer (left-top) -->
         <div id="explorer-section" class="section active panel">
-          <div class="intro">
-            <h2>Wallet Explorer (Live)</h2>
-            <p class="small">Paste your ACCOUNT_ID and AUTH (if you have) to subscribe to account-specific live positions. Otherwise public market channels will be used as fallback.</p>
-          </div>
+          <h2 style="margin:0 0 6px 0">Wallet Explorer (Live)</h2>
+          <p class="small">Paste ACCOUNT_ID & AUTH token (if available) for account channels. If direct WS blocked, use proxy (Socket.IO) — see right panel.</p>
 
-          <div class="explorer-controls">
-            <input id="wsUrl" type="text" value="wss://mainnet.zklighter.elliot.ai/stream" />
-          </div>
+          <label class="small" style="margin-top:10px">WebSocket URL</label>
+          <input id="wsUrl" type="text" value="wss://mainnet.zklighter.elliot.ai/stream" />
 
-          <div class="explorer-controls" style="margin-top:8px;">
+          <div style="display:flex;gap:8px;margin-top:8px">
             <input id="accountId" type="text" placeholder="ACCOUNT_ID (optional)" />
             <input id="authToken" type="text" placeholder="AUTH token (optional)" />
-            <button class="btn" id="connectWalletBtn">Connect (wallet)</button>
-            <button class="btn ghost" id="disconnectBtn">Disconnect</button>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="connectWalletBtn" class="btn">Connect (wallet)</button>
+            <button id="disconnectBtn" class="btn ghost">Disconnect</button>
           </div>
 
           <div style="margin-top:12px">
             <div class="small">Connection status: <span id="connStatus" class="status st-bad">disconnected</span></div>
           </div>
 
-          <div style="margin-top:12px;" id="explorerContent">
+          <div id="explorerContent" style="margin-top:12px">
             <div class="kpi-row">
-              <div class="kpi"><small>Equity</small><strong id="kpEquity">$—</strong></div>
-              <div class="kpi"><small>Unrealized PnL</small><strong id="kpUnreal">$—</strong></div>
-              <div class="kpi"><small>Margin Used</small><strong id="kpMargin">$—</strong></div>
+              <div class="kpi"><div class="small">Equity</div><div id="kpEquity" style="font-weight:700">$—</div></div>
+              <div class="kpi"><div class="small">Unrealized PnL</div><div id="kpUnreal" style="font-weight:700">$—</div></div>
+              <div class="kpi"><div class="small">Margin Used</div><div id="kpMargin" style="font-weight:700">$—</div></div>
             </div>
 
-            <div class="panel" style="padding:12px;">
+            <div style="margin-top:12px">
               <h4 style="margin:6px 0">Open Positions</h4>
               <div id="positionsTableWrap">
                 <table>
@@ -170,73 +108,72 @@
               </div>
             </div>
 
-            <div style="margin-top:12px;">
+            <div style="margin-top:12px">
               <h4 style="margin:6px 0">Quick PnL Simulator</h4>
-              <p class="small">Adjust mark price by % to see instant new unrealized PnL.</p>
+              <p class="small">Adjust mark price by %</p>
               <input id="simRange" type="range" min="-15" max="15" step="0.1" value="0" />
               <div class="small" id="simLabel">Adj: 0%</div>
-              <div id="simResults" style="margin-top:8px;"></div>
+              <div id="simResults" style="margin-top:8px"></div>
             </div>
           </div>
         </div>
 
-        <!-- LEADERBOARD (LEFT middle) -->
+        <!-- Leaderboard (left-middle) -->
         <div id="leaderboard-section" class="section panel">
-          <h3 style="margin-top:0">Live Leaderboard — Recent Activity</h3>
-          <p class="small">Subscribes to market/trade channels. If Lighter provides a direct leaderboard channel replace the channel list accordingly.</p>
+          <h3 style="margin:0 0 6px 0">Live Leaderboard — Recent Activity</h3>
+          <p class="small">Subscribe to channels (market_stats/all, trade, order_book/*). If Lighter exposes a direct leaderboard channel, add it here.</p>
 
-          <label style="margin-top:8px">Subscribe channels (comma separated)</label>
-          <input id="leaderChannels" value="market_stats/all,trade,order_book/0" />
+          <label class="small" style="margin-top:8px">Channels (comma)</label>
+          <input id="leaderChannels" type="text" value="market_stats/all,trade,order_book/0" />
 
-          <div style="margin-top:10px" class="row">
-            <button class="btn" id="connectLeaderBtn">Connect (leaderboard)</button>
+          <div style="margin-top:10px">
+            <button id="connectLeaderBtn" class="btn">Connect (leaderboard)</button>
           </div>
 
           <div style="margin-top:12px">
-            <div class="small">Recent activity (latest on top)</div>
-            <div class="leaderboard-rows" id="leaderboardWrap">
+            <div class="small">Recent activity (latest first)</div>
+            <div class="leaderboard-rows" style="margin-top:8px">
               <table>
-                <thead><tr><th style="width:60px">Source</th><th>Info</th><th style="width:120px">At</th></tr></thead>
+                <thead><tr><th style="width:120px">Source</th><th>Info</th><th style="width:100px">Time</th></tr></thead>
                 <tbody id="leaderBody"></tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- QUIZ (LEFT bottom) -->
+        <!-- Quiz (left-bottom) -->
         <div id="quiz-section" class="section panel">
           <div class="intro">
-            <h2>Lighter IQ Challenge</h2>
-            <p>Test your knowledge about <strong>Lighter</strong> — quick 10-question quiz based on lighter.xyz</p>
+            <h2 style="margin:0 0 6px 0">Lighter IQ Challenge</h2>
+            <p class="small">10 quick questions about Lighter</p>
           </div>
 
           <div id="start-screen">
-            <p class="small" style="text-align:center; margin-bottom:10px;">Ready? Click start to begin the quiz.</p>
+            <p class="small" style="text-align:center;margin-bottom:10px">Ready? Click start.</p>
             <div style="text-align:center"><button class="btn" onclick="goToLoading()">Start Quiz</button></div>
           </div>
 
-          <div id="loading-screen" style="display:none;">
-            <div class="loader"><span></span><span></span><span></span></div>
-            <p style="text-align:center; color: var(--text-muted); margin-top:6px;">Loading questions…</p>
+          <div id="loading-screen" style="display:none">
+            <div style="display:flex;justify-content:center;padding:12px"><span style="width:10px;height:10px;background:var(--accent2);border-radius:50%;display:inline-block;animation:blink 0.6s infinite alternate"></span></div>
+            <p class="small" style="text-align:center;color:var(--text-muted)">Loading questions…</p>
           </div>
 
-          <div id="quiz-screen" style="display:none;">
-            <div class="question-counter"><span id="cur">1</span> / <span id="tot">10</span></div>
-            <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
+          <div id="quiz-screen" style="display:none">
+            <div class="small" style="text-align:center;margin-bottom:6px"><span id="cur">1</span> / <span id="tot">10</span></div>
+            <div style="height:8px;background:var(--border-color);border-radius:6px;overflow:hidden;margin-bottom:12px"><div id="fill" style="height:100%;width:0%;background:var(--accent1)"></div></div>
             <div class="question-card">
               <h3 id="qtext"></h3>
               <div class="options" id="optbox"></div>
             </div>
-            <div id="fb" class="feedback"></div>
-            <div style="text-align:center; margin-top:12px;"><button id="nextBtn" class="btn ghost" onclick="nextQ()" disabled>Next</button></div>
+            <div id="fb" class="small" style="text-align:center;display:none"></div>
+            <div style="text-align:center;margin-top:10px"><button id="nextBtn" class="btn ghost" onclick="nextQ()" disabled>Next</button></div>
           </div>
 
-          <div id="result-screen" style="display:none;" class="results">
-            <div class="score" id="scorePct">0%</div>
-            <div class="message" id="msg"></div>
-            <div class="chart-box" id="chartContainer"><canvas id="resultChart"></canvas></div>
-            <p style="margin-top:8px;">Correct: <span id="corr">0</span> | Wrong: <span id="wrng">0</span> | Total: <span id="total">10</span></p>
-            <div style="text-align:center; margin-top:12px;"><button class="btn" onclick="restartQuiz()">Play Again</button></div>
+          <div id="result-screen" style="display:none;text-align:center">
+            <div style="font-size:2rem;margin-top:8px" id="scorePct">0%</div>
+            <div id="msg" class="small"></div>
+            <p class="small" style="margin-top:8px">Correct: <span id="corr">0</span> | Wrong: <span id="wrng">0</span></p>
+            <div style="margin-top:12px"><button class="btn" onclick="restartQuiz()">Play Again</button></div>
           </div>
         </div>
 
@@ -245,427 +182,431 @@
       <!-- RIGHT SIDEBAR -->
       <aside>
         <div class="panel quick-links">
-          <p style="font-size:1rem;">Quick Links</p>
+          <p style="font-weight:700;margin:0">Quick Links</p>
         </div>
 
-        <div class="panel" style="margin-top:12px; display:flex; flex-direction:column; gap:8px; align-items:center;">
-          <a class="btn ghost" href="https://lighter.xyz/" target="_blank" style="width:100%; text-align:center;">Open Lighter</a>
-          <button class="btn ghost" style="width:100%; text-align:center;" onclick="showSection('explorer')">Wallet Explorer</button>
-          <button class="btn ghost" style="width:100%; text-align:center;" onclick="showSection('leaderboard')">Lighter Leaderboard</button>
+        <div class="panel" style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <a class="btn ghost" href="https://lighter.xyz/" target="_blank" style="width:100%;text-align:center">Open Lighter</a>
+          <button class="btn ghost" style="width:100%;text-align:center" onclick="showSection('explorer')">Wallet Explorer</button>
+          <button class="btn ghost" style="width:100%;text-align:center" onclick="showSection('leaderboard')">Lighter Leaderboard</button>
         </div>
 
-        <div class="panel" style="margin-top:12px;">
-          <h4 style="margin-top:0">About</h4>
+        <div class="panel" style="margin-top:12px">
+          <h4 style="margin:0 0 8px 0">Proxy / Token (optional)</h4>
+          <div class="small">If direct WS blocked, you can run a small server proxy and paste its URL here.</div>
+          <label class="small" style="margin-top:8px">Proxy Socket.IO URL (optional, e.g. http://localhost:3000)</label>
+          <input id="proxyUrl" type="url" placeholder="http://localhost:3000" />
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button id="connectProxyBtn" class="btn">Connect Proxy</button>
+            <button id="disconnectProxyBtn" class="btn ghost">Disconnect Proxy</button>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <h4 style="margin:0 0 8px 0">About (simple)</h4>
           <p class="small">
-            Lighter is a decentralized trading infrastructure on Ethereum. It uses zero-knowledge proofs to prove that orders, matches and state changes are correct. Users keep control of their funds while the system provides fast, verifiable trading operations.
+            Lighter is a decentralized trading infrastructure on Ethereum. It uses zero-knowledge proofs to verify order matching and state changes. Users keep control of their funds while the system provides fast, verifiable trading.
           </p>
         </div>
 
-        <div class="panel" style="margin-top:12px;">
-          <h4 style="margin-top:0">Raw messages (debug)</h4>
+        <div class="panel" style="margin-top:12px">
+          <h4 style="margin:0 0 8px 0">Raw / Debug</h4>
           <pre id="raw">—</pre>
         </div>
       </aside>
-
     </div>
 
-    <div class="footer">
-      <span style="color: var(--text-muted); font-size:0.9rem;">Created by</span>
-      <a href="https://x.com/nexodrops" target="_blank" style="margin-left:8px;color:var(--accent1);text-decoration:none;font-weight:600;">🐦 @nexodrops</a>
+    <div style="padding:12px;text-align:center;background:var(--card-bg);border-top:1px solid rgba(255,255,255,0.03)">
+      <span class="small" style="color:var(--text-muted)">Created by</span>
+      <a href="https://x.com/nexodrops" target="_blank" style="margin-left:8px;color:var(--accent1);text-decoration:none;font-weight:700">🐦 @nexodrops</a>
     </div>
-
   </div>
 
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
   <script>
-    /***************************************
-     * Globals and helpers
-     ***************************************/
-    const randHex = (len=6)=> Math.random().toString(16).slice(2, 2+len);
-    const fmt = (n) => (typeof n==='number') ? n.toLocaleString(undefined,{maximumFractionDigits:2}) : n;
-    let ws = null;
-    const rawEl = document.getElementById('raw');
-    const connStatus = document.getElementById('connStatus');
-    const kpEquity = document.getElementById('kpEquity');
-    const kpMargin = document.getElementById('kpMargin');
-    const kpUnreal = document.getElementById('kpUnreal');
-    const posBody = document.getElementById('posBody');
-    const lbBody = document.getElementById('leaderBody');
-    const kp = { equity: null, unreal: null, margin: null };
+  /***** Helpers & state *****/
+  const rawEl = document.getElementById('raw');
+  const connStatus = document.getElementById('connStatus');
+  const kpEquity = document.getElementById('kpEquity');
+  const kpMargin = document.getElementById('kpMargin');
+  const kpUnreal = document.getElementById('kpUnreal');
+  const posBody = document.getElementById('posBody');
+  const leaderBody = document.getElementById('leaderBody');
 
-    function logRaw(msg){
-      const ts = new Date().toISOString().replace('T',' ').slice(0,19);
-      rawEl.textContent = `${ts}  ${JSON.stringify(msg,null,2)}\n\n` + rawEl.textContent;
+  const proxyInput = document.getElementById('proxyUrl');
+  let WS = null;
+  let shouldReconnect = true;
+  let reconnectTimer = null;
+  let pingInterval = null;
+  let subscribedChannels = new Set();
+  let socketIoClient = null; // for proxy
+  let usingProxy = false;
+
+  function logRaw(obj){
+    const ts = new Date().toISOString().replace('T',' ').slice(0,19);
+    rawEl.textContent = `${ts}  ${JSON.stringify(obj,null,2)}\n\n` + rawEl.textContent;
+  }
+
+  function fmt(n){ return (typeof n==='number') ? n.toLocaleString(undefined,{maximumFractionDigits:2}) : n; }
+
+  /***** Section navigation *****/
+  function showSection(name){
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    if(name==='explorer') document.getElementById('nav-explorer').classList.add('active');
+    if(name==='leaderboard') document.getElementById('nav-leader').classList.add('active');
+    if(name==='quiz') document.getElementById('nav-quiz').classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    if(name==='explorer') document.getElementById('explorer-section').classList.add('active');
+    if(name==='leaderboard') document.getElementById('leaderboard-section').classList.add('active');
+    if(name==='quiz') document.getElementById('quiz-section').classList.add('active');
+  }
+
+  /***** Reliable WebSocket client (auto-reconnect, heartbeat, resubscribe) *****/
+  function updateConnStatus(state, note=''){
+    connStatus.textContent = state;
+    connStatus.className = 'status ' + (state==='connected' ? 'st-ok' : 'st-bad');
+    if(note) logRaw({note});
+  }
+
+  function openWs(url){
+    if(WS && (WS.readyState===0||WS.readyState===1)) { logRaw({info:'ws already open/connecting'}); return; }
+    try {
+      WS = new WebSocket(url);
+    } catch(e) {
+      updateConnStatus('error','ws create failed');
+      logRaw({err:e.message});
+      scheduleReconnect(url);
+      return;
     }
 
-    /***************************************
-     * Section navigation
-     ***************************************/
-    function showSection(name){
-      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-      if (name === 'quiz') document.getElementById('nav-quiz').classList.add('active');
-      if (name === 'explorer') document.getElementById('nav-explorer').classList.add('active');
-      if (name === 'leaderboard') document.getElementById('nav-leader').classList.add('active');
-
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      if (name === 'quiz') document.getElementById('quiz-section').classList.add('active');
-      if (name === 'explorer') document.getElementById('explorer-section').classList.add('active');
-      if (name === 'leaderboard') document.getElementById('leaderboard-section').classList.add('active');
-    }
-
-    /***************************************
-     * WebSocket helpers (Lighter apidocs format)
-     ***************************************/
-    function connectWs(url){
-      if(ws){ try{ ws.close(); }catch(e){} ws=null; }
-      try {
-        ws = new WebSocket(url);
-      } catch(e) {
-        connStatus.textContent = 'error';
-        connStatus.className = 'status st-bad';
-        logRaw({event:'ws_connect_error', error:e.message});
-        return;
-      }
-
-      ws.onopen = () => {
-        connStatus.textContent = 'connected';
-        connStatus.className = 'status st-ok';
-        logRaw({event:'ws_open', url});
-      };
-
-      ws.onmessage = (ev) => {
-        let data;
-        try{ data = JSON.parse(ev.data); } catch(e){ data = ev.data; }
-        handleWsMessage(data);
-        logRaw(data);
-      };
-
-      ws.onclose = (ev) => {
-        connStatus.textContent = 'disconnected';
-        connStatus.className = 'status st-bad';
-        logRaw({event:'ws_close', code: ev.code});
-      };
-
-      ws.onerror = (err) => {
-        connStatus.textContent = 'error';
-        connStatus.className = 'status st-bad';
-        logRaw({event:'ws_error', err});
-        console.error('ws error', err);
-      };
-    }
-
-    function safeSend(obj){
-      if(!ws || ws.readyState !== 1) {
-        logRaw({warn:'ws-not-open', trying: obj});
-        return false;
-      }
-      try {
-        ws.send(JSON.stringify(obj));
-        logRaw({sent: obj});
-        return true;
-      } catch(e) {
-        logRaw({err:'ws-send-fail', e: e.message});
-        return false;
-      }
-    }
-
-    function subscribeAccount(accountId, authToken){
-      // apidocs: subscribe format -> { type: 'subscribe', channel: 'account_all_positions/{ACCOUNT_ID}', auth: '<token>' }
-      const ch = `account_all_positions/${accountId}`;
-      const msg = { type: 'subscribe', channel: ch };
-      if(authToken) msg.auth = authToken;
-      safeSend(msg);
-    }
-
-    function subscribeChannels(arr){
-      arr.forEach(ch => {
-        if(!ch) return;
-        const msg = { type: 'subscribe', channel: ch };
+    WS.onopen = () => {
+      updateConnStatus('connected');
+      logRaw({event:'ws_open', url});
+      // heartbeat ping (optional)
+      if(pingInterval) clearInterval(pingInterval);
+      pingInterval = setInterval(()=> {
+        try { WS.send(JSON.stringify({type:'ping'})); } catch(e) {}
+      }, 20000);
+      // resubscribe
+      for(const ch of subscribedChannels) {
+        const msg = { type:'subscribe', channel: ch };
+        if(ch.startsWith('account_all_positions/')) {
+          const auth = document.getElementById('authToken').value.trim();
+          if(auth) msg.auth = auth;
+        }
         safeSend(msg);
-      });
-    }
-
-    function handleWsMessage(msg){
-      // Normalize channel/type detection
-      const ch = msg.channel || '';
-      const t = msg.type || '';
-
-      // Account positions update
-      if(t === 'update/account_all_positions' || ch.startsWith('account_all_positions')){
-        // many apis embed positions under msg.positions
-        updatePositionsFromAccountMsg(msg.positions ? msg : msg);
-        return;
       }
+    };
 
-      // Market stats or order book or trade
-      if(t.startsWith('update/market_stats') || ch.startsWith('market_stats') || ch.startsWith('order_book') || t==='trade' || ch.startsWith('trade')){
-        pushLeaderboardRow({ src: ch || t || 'market', info: msg, at: new Date().toISOString() });
-        return;
-      }
+    WS.onmessage = (ev) => {
+      let data;
+      try { data = JSON.parse(ev.data); } catch(e) { data = ev.data; }
+      handleIncoming(data);
+      logRaw(data);
+    };
 
-      // fallback - store raw
-      pushLeaderboardRow({ src: ch || t || 'msg', info: JSON.stringify(msg).slice(0,200), at: new Date().toISOString() });
-    }
+    WS.onclose = (ev) => {
+      updateConnStatus('disconnected');
+      logRaw({event:'ws_close', code: ev.code});
+      if(pingInterval) clearInterval(pingInterval);
+      if(shouldReconnect) scheduleReconnect(url);
+    };
 
-    /***************************************
-     * UI updaters
-     ***************************************/
-    function updatePositionsFromAccountMsg(payload){
-      try {
-        // payload likely shape: { positions: { marketIndex: {...}, ... }, equity: ..., etc }
-        const positionsObj = payload.positions || payload; // sometimes msg itself is positions map
-        const positionsArr = Object.keys(positionsObj).map(k => positionsObj[k]);
+    WS.onerror = (err) => {
+      updateConnStatus('error');
+      logRaw({event:'ws_error', err});
+      console.error('ws error', err);
+    };
+  }
 
-        // compute KPIs if provided
-        let totalUnreal = 0, totalAllocated = 0;
-        positionsArr.forEach(p => {
-          totalUnreal += Number(p.unrealized_pnl || p.unrealizedPnl || 0);
-          totalAllocated += Number(p.allocated_margin || p.allocatedMargin || p.collateral || 0);
-        });
+  function scheduleReconnect(url, delay=2000){
+    if(reconnectTimer) return;
+    reconnectTimer = setTimeout(()=>{ reconnectTimer=null; if(shouldReconnect) openWs(url); }, delay);
+  }
 
-        kpUnreal.textContent = '$' + Number(totalUnreal).toFixed(2);
-        kpMargin.textContent = '$' + Number(totalAllocated).toFixed(2);
-        kpEquity.textContent = payload.equity ? ('$' + Number(payload.equity).toFixed(2)) : (payload.account_equity ? ('$' + Number(payload.account_equity).toFixed(2)) : '—');
+  function closeWs(){
+    shouldReconnect = false;
+    if(pingInterval) clearInterval(pingInterval);
+    if(WS){ try{ WS.close(); } catch(e){} WS=null; }
+    updateConnStatus('disconnected');
+  }
 
-        // render positions rows
-        posBody.innerHTML = positionsArr.map(p => {
-          const market = p.market || p.market_id || p.symbol || 'm' + (p.market_index || '');
-          const side = (p.position_size && Number(p.position_size) < 0) ? 'SHORT' : 'LONG';
-          const size = p.position_size || p.size || p.position || 0;
-          const entry = p.avg_entry_price || p.entry_price || p.entry || '-';
-          const mark = p.mark_price || p.mark || '-';
-          const unreal = p.unrealized_pnl || p.unrealizedPnl || 0;
-          return `<tr>
-            <td>${market}</td>
-            <td>${side}</td>
-            <td>${fmt(Number(size))}</td>
-            <td>${fmt(Number(entry))}</td>
-            <td>${fmt(Number(mark))}</td>
-            <td>${fmt(Number(unreal))}</td>
-          </tr>`;
-        }).join('');
-      } catch(e){
-        console.error('update positions err', e);
-        logRaw({err:'updatePositions', e:e.message});
+  function safeSend(obj){
+    if(!WS || WS.readyState!==1) { logRaw({warn:'ws not open', trying: obj}); return false; }
+    try { WS.send(JSON.stringify(obj)); logRaw({sent:obj}); return true; } catch(e){ logRaw({err:e.message}); return false; }
+  }
+
+  function subscribeChannel(ch){
+    subscribedChannels.add(ch);
+    if(usingProxy){
+      // via proxy, send subscribe to server
+      if(socketIoClient && socketIoClient.connected) socketIoClient.emit('subscribe', { channel: ch, authToken: document.getElementById('authToken').value.trim() || undefined });
+      else logRaw({info:'proxy not connected, will subscribe when proxy connects', channel: ch});
+    } else {
+      if(WS && WS.readyState===1){
+        const msg = { type:'subscribe', channel: ch };
+        if(ch.startsWith('account_all_positions/')){ const auth = document.getElementById('authToken').value.trim(); if(auth) msg.auth = auth; }
+        safeSend(msg);
+      } else {
+        logRaw({info:'ws not open, will subscribe when open', channel: ch});
       }
     }
+  }
 
-    function pushLeaderboardRow(r){
-      try {
-        const tr = document.createElement('tr');
-        const now = new Date(r.at).toLocaleTimeString();
-        const info = (typeof r.info === 'string') ? r.info : JSON.stringify(r.info).slice(0,150);
-        tr.innerHTML = `<td style="padding:6px 8px">${r.src}</td><td style="padding:6px 8px">${info}</td><td style="padding:6px 8px">${now}</td>`;
-        const body = document.getElementById('leaderBody');
-        body.insertBefore(tr, body.firstChild);
-        while(body.children.length > 200) body.removeChild(body.lastChild);
-      } catch(e){ console.error(e); }
+  /***** Incoming message handling (basic parsing for common channels) *****/
+  function handleIncoming(msg){
+    const ch = msg.channel || '';
+    const t = msg.type || '';
+
+    // account positions update
+    if(t === 'update/account_all_positions' || ch.startsWith('account_all_positions')){
+      const payload = msg.positions ? msg : msg;
+      renderPositions(payload);
+      return;
     }
 
-    /***************************************
-     * UI event bindings: connect/disconnect/subscriptions
-     ***************************************/
-    document.getElementById('connectWalletBtn').addEventListener('click', ()=>{
-      const url = document.getElementById('wsUrl').value.trim();
-      const acct = document.getElementById('accountId').value.trim();
-      const auth = document.getElementById('authToken').value.trim();
-      if(!url){ alert('Please provide WebSocket URL'); return; }
-      connectWs(url);
-
-      // try subscribe when open
-      const waitAndSubscribe = () => {
-        if(!ws || ws.readyState !== 1) { setTimeout(waitAndSubscribe, 200); return; }
-        if(acct){
-          subscribeAccount(acct, auth);
-        } else {
-          // fallback: subscribe to a public channel
-          subscribeChannels(['market_stats/all', 'trade']);
-        }
-        // also subscribe to a sample order_book (market 0) for activity
-        subscribeChannels(['order_book/0']);
-      };
-      waitAndSubscribe();
-    });
-
-    document.getElementById('disconnectBtn').addEventListener('click', ()=>{
-      if(ws){
-        try{ ws.close(); } catch(e) {}
-        ws = null;
-      }
-      connStatus.textContent = 'disconnected';
-      connStatus.className = 'status st-bad';
-    });
-
-    document.getElementById('connectLeaderBtn').addEventListener('click', ()=>{
-      const url = document.getElementById('wsUrl').value.trim();
-      const channels = document.getElementById('leaderChannels').value.split(',').map(s=>s.trim()).filter(Boolean);
-      if(!url){ alert('Please provide WebSocket URL'); return; }
-      if(!ws || ws.readyState !== 1) connectWs(url);
-      const wait = () => {
-        if(!ws || ws.readyState !== 1) { setTimeout(wait, 200); return; }
-        subscribeChannels(channels);
-      };
-      wait();
-    });
-
-    /***************************************
-     * REST fallback (optional)
-     * If you have a REST endpoint to snapshot account data, you can call:
-     *   fetchSnapshotRest(BASE_API_URL, ACCOUNT_ID, AUTH_TOKEN)
-     ***************************************/
-    async function fetchSnapshotRest(baseUrl, accountId, authToken){
-      if(!accountId) { logRaw({warn:'no-account-for-rest'}); return; }
-      try {
-        const url = `${baseUrl.replace(/\/$/,'')}/api/v1/account/${accountId}`;
-        const headers = {};
-        if(authToken) headers['Authorization'] = 'Bearer ' + authToken;
-        const res = await fetch(url, { headers });
-        if(!res.ok) throw new Error('status ' + res.status);
-        const j = await res.json();
-        // push into same update function
-        updatePositionsFromAccountMsg(j);
-        logRaw({restSnapshotUrl:url, ok:true});
-      } catch(e){
-        logRaw({restErr: e.message});
-      }
+    // trade messages
+    if(t === 'update/trade' || ch.startsWith('trade') || t === 'trade'){
+      const trade = msg.trade || msg;
+      pushLeader({ src: ch || 'trade', info: trade, at: new Date().toISOString() });
+      return;
     }
 
-    /***************************************
-     * Simulator (same as before)
-     ***************************************/
-    document.getElementById('simRange').addEventListener('input', (e)=> {
-      document.getElementById('simLabel').textContent = 'Adj: ' + e.target.value + '%';
-      renderSimulator();
-    });
+    // market stats
+    if(t.startsWith('update/market_stats') || ch.startsWith('market_stats')){
+      pushLeader({ src: ch || 'market_stats', info: msg.market_stats || msg, at: new Date().toISOString() });
+      return;
+    }
 
-    function renderSimulator(){
-      const out = document.getElementById('simResults');
-      const rows = Array.from(posBody.querySelectorAll('tr'));
-      if(rows.length===0){ out.innerHTML = '<div class="small">No positions to simulate.</div>'; return; }
-      const adj = Number(document.getElementById('simRange').value);
-      out.innerHTML = rows.map(tr => {
-        const cols = tr.querySelectorAll('td');
-        const market = cols[0].textContent;
-        const side = cols[1].textContent;
-        const size = Number(cols[2].textContent.replace(/,/g,'')) || 0;
-        const entry = Number(cols[3].textContent.replace(/,/g,'')) || 0;
-        const mark = Number(cols[4].textContent.replace(/,/g,'')) || 0;
-        const newMark = mark * (1 + adj/100);
-        const newUnreal = (side === 'LONG' ? (newMark - entry) * size : (entry - newMark) * size);
-        return `<div style="padding:10px;background:#061022;border-radius:8px;margin-top:8px">
-          <div style="font-weight:700">${market} — ${side}</div>
-          <div class="small">Mark: $${fmt(newMark)} • New Unrealized: $${fmt(newUnreal)}</div>
-        </div>`;
+    // order book
+    if(t.startsWith('update/order_book') || ch.startsWith('order_book')){
+      const info = { bids: msg.order_book?.bids?.length || 0, asks: msg.order_book?.asks?.length || 0 };
+      pushLeader({ src: ch || 'order_book', info, at: new Date().toISOString() });
+      return;
+    }
+
+    // fallback
+    pushLeader({ src: ch || t || 'msg', info: JSON.stringify(msg).slice(0,180), at: new Date().toISOString() });
+  }
+
+  function renderPositions(payload){
+    try{
+      const positionsObj = payload.positions || payload;
+      const arr = Object.keys(positionsObj).map(k=>positionsObj[k]);
+      let totUnreal=0, totAlloc=0;
+      arr.forEach(p=>{ totUnreal += Number(p.unrealized_pnl || p.unrealizedPnl || 0); totAlloc += Number(p.allocated_margin || p.collateral || 0); });
+      kpUnreal.textContent = '$' + Number(totUnreal).toFixed(2);
+      kpMargin.textContent = '$' + Number(totAlloc).toFixed(2);
+      kpEquity.textContent = payload.equity ? ('$' + Number(payload.equity).toFixed(2)) : '—';
+      posBody.innerHTML = arr.map(p=>{
+        const market = p.market || p.market_id || p.symbol || 'm' + (p.market_index||'');
+        const size = p.position_size || p.position || p.size || 0;
+        const side = (Number(size) < 0) ? 'SHORT' : 'LONG';
+        const entry = p.avg_entry_price || p.entry_price || p.entry || '-';
+        const mark = p.mark_price || p.mark || '-';
+        const unreal = p.unrealized_pnl || p.unrealizedPnl || 0;
+        return `<tr><td>${market}</td><td>${side}</td><td>${fmt(Number(size))}</td><td>${fmt(Number(entry))}</td><td>${fmt(Number(mark))}</td><td>${fmt(Number(unreal))}</td></tr>`;
       }).join('');
+    } catch(e){
+      logRaw({err:'renderPositions', e:e.message});
     }
+  }
 
-    /***************************************
-     * QUIZ: replaced with Lighter questions (unchanged logic)
-     ***************************************/
-    const quizData = [
-      { q: "What type of exchange is Lighter described as?", o: ["Centralized exchange (CEX)","Fully verifiable decentralized exchange built with custom ZK infrastructure","Peer-to-peer only exchange","Traditional broker-dealer platform"], c:1 },
-      { q: "Lighter is built on top of which blockchain?", o: ["Bitcoin","Solana","Ethereum","Polkadot"], c:2 },
-      { q: "What is one of the key focuses of Lighter’s infrastructure?", o: ["High trading fees","Low latency and high throughput","Manual settlement only","Off-chain only trades with no proofs"], c:1 },
-      { q: "Which mechanism does Lighter use to ensure the correctness of operations like order matching and liquidations?", o: ["Trusted third party audit only","Manual human verification","Zero-knowledge (ZK) proofs","No verification mechanism"], c:2 },
-      { q: "According to the site, what is one benefit for retail traders using Lighter?", o: ["High minimum deposits","Zero fees for retail traders","Only institutional access","Mandatory subscription fees"], c:1 },
-      { q: "The site says that Lighter processes how many orders and cancels per second (or at that scale)?", o: ["A handful of orders per second","Tens of thousands of orders and cancels per second","Thousands of orders per hour","Millions of orders per minute"], c:1 },
-      { q: "With Lighter, who remains in control of the user’s funds under its model?", o: ["Lighter holds all funds centrally","A third-party custodian holds funds","Users retain control via Ethereum layer and proofs","Funds are held purely off-chain without on-chain settlement"], c:2 },
-      { q: "Lighter’s base layer for proofs and state changes is:", o: ["Binance Smart Chain","Solana","Ethereum","Tezos"], c:2 },
-      { q: "According to the website, what ensures there is no censorship or favoritism in trade matching?", o: ["Manual audit every trade","Trades match by price-time priority with cryptographic proofs","Trades only done during business hours","Matching engine controlled by a central authority"], c:1 },
-      { q: "One of the features of Lighter’s infrastructure is:", o: ["All operations are off-chain and non-verifiable","Matching orders and proving correctness is highly optimized for low cost","High latency but very low cost","Only spot trading is supported"], c:1 }
-    ];
-    let qidx=0, correctCount=0;
+  function pushLeader(row){
+    try{
+      const tb = leaderBody;
+      const tr = document.createElement('tr');
+      const now = new Date(row.at).toLocaleTimeString();
+      const info = (typeof row.info === 'string') ? row.info : (row.info.price ? `${row.info.market_id||row.info.symbol||''} ${row.info.price} x ${row.info.size||''}` : JSON.stringify(row.info).slice(0,150));
+      tr.innerHTML = `<td style="padding:6px 8px">${row.src}</td><td style="padding:6px 8px">${info}</td><td style="padding:6px 8px">${now}</td>`;
+      tb.insertBefore(tr, tb.firstChild);
+      while(tb.children.length > 200) tb.removeChild(tb.lastChild);
+    } catch(e){ console.error(e); }
+  }
 
-    function goToLoading(){
-      showSection('quiz');
-      document.getElementById('start-screen').style.display='none';
-      document.getElementById('loading-screen').style.display='block';
-      setTimeout(()=>{
-        document.getElementById('loading-screen').style.display='none';
-        document.getElementById('quiz-screen').style.display='block';
-        document.getElementById('tot').textContent = quizData.length;
-        loadQ();
-      }, 700);
-    }
+  /***** UI: connect/disconnect handlers (WS) *****/
+  document.getElementById('connectWalletBtn').addEventListener('click', ()=>{
+    const url = document.getElementById('wsUrl').value.trim();
+    if(!url) return alert('Provide WebSocket URL');
+    usingProxy = false;
+    shouldReconnect = true;
+    openWs(url);
+    // subscribe after open
+    const wait = ()=> {
+      if(!WS || WS.readyState !== 1){ setTimeout(wait, 200); return; }
+      const acct = document.getElementById('accountId').value.trim();
+      if(acct) subscribeChannel(`account_all_positions/${acct}`);
+      else { subscribeChannel('market_stats/all'); subscribeChannel('trade'); }
+      subscribeChannel('order_book/0');
+    };
+    wait();
+  });
 
-    function loadQ(){
-      if (qidx >= quizData.length) return showResult();
-      const q = quizData[qidx];
-      document.getElementById('cur').textContent = qidx + 1;
-      document.getElementById('qtext').textContent = q.q;
-      const box = document.getElementById('optbox');
-      box.innerHTML = '';
-      q.o.forEach((opt,i)=>{
-        const div = document.createElement('div');
-        div.className = 'option';
-        div.textContent = opt;
-        div.onclick = ()=> selectOpt(i);
-        box.appendChild(div);
-      });
-      document.getElementById('fill').style.width = ((qidx)/quizData.length*100)+'%';
-      document.getElementById('nextBtn').disabled = true;
-      const fb = document.getElementById('fb'); fb.style.display='none'; fb.textContent='';
-    }
+  document.getElementById('disconnectBtn').addEventListener('click', ()=> {
+    shouldReconnect = false;
+    if(WS){ try{ WS.close(); } catch(e){} WS = null; }
+    updateConnStatus('disconnected');
+  });
 
-    function selectOpt(i){
-      const q = quizData[qidx];
-      const opts = document.querySelectorAll('.option');
-      opts.forEach((el,j)=>{
-        el.style.pointerEvents='none';
-        if(j===q.c) el.classList.add('correct');
-        else if(j===i && i!==q.c) el.classList.add('incorrect');
-      });
-      if(i===q.c){
-        correctCount++;
-        confetti({
-          particleCount:60,
-          spread:50,
-          origin:{ y:0.6 },
-          colors:[ getComputedStyle(document.documentElement).getPropertyValue('--accent1').trim(), getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(), "#ffffff" ]
-        });
+  document.getElementById('connectLeaderBtn').addEventListener('click', ()=>{
+    const url = document.getElementById('wsUrl').value.trim();
+    if(!url) return alert('Provide WebSocket URL');
+    usingProxy = false;
+    if(!WS || WS.readyState !== 1) openWs(url);
+    const wait = ()=> {
+      if(!WS || WS.readyState !== 1){ setTimeout(wait, 200); return; }
+      const chs = document.getElementById('leaderChannels').value.split(',').map(s=>s.trim()).filter(Boolean);
+      chs.forEach(ch => subscribeChannel(ch));
+    };
+    wait();
+  });
+
+  /***** Proxy (Socket.IO) support: connect/disconnect proxy, request server to subscribe *****/
+  document.getElementById('connectProxyBtn').addEventListener('click', async ()=>{
+    const url = proxyInput.value.trim();
+    if(!url) return alert('Enter proxy URL (e.g., http://localhost:3000)');
+    // dynamically load socket.io client script from proxy (if available)
+    try {
+      if(!window.io){
+        await loadScript(url.replace(/\/$/, '') + '/socket.io/socket.io.js');
       }
-      document.getElementById('nextBtn').disabled=false;
-    }
-
-    function nextQ(){ qidx++; loadQ(); }
-
-    function showResult(){
-      document.getElementById('quiz-screen').style.display='none';
-      document.getElementById('result-screen').style.display='block';
-      const pct = Math.round(correctCount/quizData.length*100);
-      document.getElementById('scorePct').textContent = pct + '%';
-      document.getElementById('corr').textContent = correctCount;
-      document.getElementById('wrng').textContent = quizData.length - correctCount;
-      document.getElementById('msg').textContent =
-        pct>=80 ? '🏆 Excellent! You’re a Lighter Pro!' :
-        pct>=60 ? '👏 Great job! You know your stuff!' :
-        pct>=40 ? '👍 Nice try! Keep improving!' :
-        '💪 Keep practising — you’ll get better!';
-      renderResultChart(correctCount, quizData.length-correctCount);
-    }
-
-    function renderResultChart(corr, wrong){
-      const ctx = document.getElementById('resultChart').getContext('2d');
-      new Chart(ctx, {
-        type:'doughnut',
-        data:{
-          labels:['Correct','Wrong'],
-          datasets:[{ data:[corr,wrong], backgroundColor:['#51cf66','#f03e3e'], hoverOffset:8 }]
-        },
-        options:{
-          cutout:'65%',
-          plugins:{ legend:{ position:'bottom', labels:{ color: getComputedStyle(document.documentElement).getPropertyValue('--text-light').trim() } },
-            tooltip:{ callbacks:{ label:(ctx)=> ctx.label + ': ' + ctx.parsed } } }
+      socketIoClient = window.io(url);
+      usingProxy = true;
+      socketIoClient.on('connect', ()=> {
+        updateConnStatus('connected');
+        logRaw({event:'proxy_connect', url});
+        // re-subscribe requested channels through proxy
+        for(const ch of subscribedChannels){
+          socketIoClient.emit('subscribe', { channel: ch, authToken: document.getElementById('authToken').value.trim() || undefined });
         }
       });
+      socketIoClient.on('disconnect', ()=> updateConnStatus('disconnected'));
+      socketIoClient.on('lighter:message', (msg)=> {
+        handleIncoming(msg);
+        logRaw({fromProxy:msg});
+      });
+    } catch(e){
+      logRaw({proxy_err:e.message});
+      alert('Proxy connect failed: ' + e.message);
     }
+  });
 
-    function restartQuiz(){ qidx=0; correctCount=0; document.getElementById('result-screen').style.display='none'; document.getElementById('start-screen').style.display='block'; }
+  document.getElementById('disconnectProxyBtn').addEventListener('click', ()=> {
+    if(socketIoClient){ socketIoClient.disconnect(); socketIoClient=null; usingProxy=false; updateConnStatus('disconnected'); }
+  });
 
-    /***************************************
-     * Initialize
-     ***************************************/
-    // default nav active
-    document.getElementById('nav-explorer').classList.add('active');
+  function loadScript(src){
+    return new Promise((res, rej)=>{
+      const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = ()=> rej(new Error('failed to load ' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  /***** REST snapshot helper (optional) *****/
+  async function fetchSnapshotRest(baseUrl, accountId, authToken){
+    if(!accountId) { logRaw({warn:'no account for rest snapshot'}); return; }
+    try {
+      const url = `${baseUrl.replace(/\/$/,'')}/api/v1/account/${accountId}`;
+      const headers = {}; if(authToken) headers['Authorization'] = 'Bearer ' + authToken;
+      const r = await fetch(url, { headers });
+      if(!r.ok) throw new Error('status ' + r.status);
+      const j = await r.json();
+      renderPositions(j);
+      logRaw({restSnapshot:true});
+    } catch(e){ logRaw({restErr:e.message}); }
+  }
+
+  /***** Simulator UI *****/
+  document.getElementById('simRange').addEventListener('input', (e)=> {
+    document.getElementById('simLabel').textContent = 'Adj: ' + e.target.value + '%';
+    renderSimulator();
+  });
+
+  function renderSimulator(){
+    const out = document.getElementById('simResults');
+    const rows = Array.from(posBody.querySelectorAll('tr'));
+    if(rows.length===0){ out.innerHTML = '<div class="small">No positions to simulate.</div>'; return; }
+    const adj = Number(document.getElementById('simRange').value);
+    out.innerHTML = rows.map(tr => {
+      const cols = tr.querySelectorAll('td');
+      const market = cols[0].textContent;
+      const side = cols[1].textContent;
+      const size = Number(cols[2].textContent.replace(/,/g,'')) || 0;
+      const entry = Number(cols[3].textContent.replace(/,/g,'')) || 0;
+      const mark = Number(cols[4].textContent.replace(/,/g,'')) || 0;
+      const newMark = mark * (1 + adj/100);
+      const newUnreal = (side === 'LONG' ? (newMark - entry) * size : (entry - newMark) * size);
+      return `<div style="padding:10px;background:#061022;border-radius:8px;margin-top:8px"><div style="font-weight:700">${market} — ${side}</div><div class="small">Mark: $${fmt(newMark)} • New Unrealized: $${fmt(newUnreal)}</div></div>`;
+    }).join('');
+  }
+
+  /***** QUIZ (unchanged logic + data) *****/
+  const quizData = [
+    { q: "What type of exchange is Lighter described as?", o: ["Centralized exchange (CEX)","Fully verifiable decentralized exchange built with custom ZK infrastructure","Peer-to-peer only exchange","Traditional broker-dealer platform"], c:1 },
+    { q: "Lighter is built on top of which blockchain?", o: ["Bitcoin","Solana","Ethereum","Polkadot"], c:2 },
+    { q: "What is one of the key focuses of Lighter’s infrastructure?", o: ["High trading fees","Low latency and high throughput","Manual settlement only","Off-chain only trades with no proofs"], c:1 },
+    { q: "Which mechanism does Lighter use to ensure the correctness of operations like order matching and liquidations?", o: ["Trusted third party audit only","Manual human verification","Zero-knowledge (ZK) proofs","No verification mechanism"], c:2 },
+    { q: "According to the site, what is one benefit for retail traders using Lighter?", o: ["High minimum deposits","Zero fees for retail traders","Only institutional access","Mandatory subscription fees"], c:1 },
+    { q: "The site says that Lighter processes how many orders and cancels per second (or at that scale)?", o: ["A handful of orders per second","Tens of thousands of orders and cancels per second","Thousands of orders per hour","Millions of orders per minute"], c:1 },
+    { q: "With Lighter, who remains in control of the user’s funds under its model?", o: ["Lighter holds all funds centrally","A third-party custodian holds funds","Users retain control via Ethereum layer and proofs","Funds are held purely off-chain without on-chain settlement"], c:2 },
+    { q: "Lighter’s base layer for proofs and state changes is:", o: ["Binance Smart Chain","Solana","Ethereum","Tezos"], c:2 },
+    { q: "According to the website, what ensures there is no censorship or favoritism in trade matching?", o: ["Manual audit every trade","Trades match by price-time priority with cryptographic proofs","Trades only done during business hours","Matching engine controlled by a central authority"], c:1 },
+    { q: "One of the features of Lighter’s infrastructure is:", o: ["All operations are off-chain and non-verifiable","Matching orders and proving correctness is highly optimized for low cost","High latency but very low cost","Only spot trading is supported"], c:1 }
+  ];
+  let qidx=0, correctCount=0;
+
+  function goToLoading(){
+    showSection('quiz');
+    document.getElementById('start-screen').style.display='none';
+    document.getElementById('loading-screen').style.display='block';
+    setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; document.getElementById('quiz-screen').style.display='block'; document.getElementById('tot').textContent = quizData.length; loadQ(); }, 500);
+  }
+
+  function loadQ(){
+    if(qidx >= quizData.length) return showResult();
+    const q = quizData[qidx];
+    document.getElementById('cur').textContent = qidx + 1;
+    document.getElementById('qtext').textContent = q.q;
+    const box = document.getElementById('optbox');
+    box.innerHTML = '';
+    q.o.forEach((opt,i)=>{ const d=document.createElement('div'); d.className='option'; d.textContent=opt; d.onclick=()=>selectOpt(i); box.appendChild(d); });
+    document.getElementById('fill').style.width = ((qidx)/quizData.length*100)+'%';
+    document.getElementById('nextBtn').disabled = true;
+    document.getElementById('fb').style.display='none';
+  }
+
+  function selectOpt(i){
+    const q = quizData[qidx];
+    const opts = document.querySelectorAll('.option');
+    opts.forEach((el,j)=>{ el.style.pointerEvents='none'; if(j===q.c) el.classList.add('correct'); else if(j===i && i!==q.c) el.classList.add('incorrect'); });
+    if(i===q.c){ correctCount++; confetti({ particleCount:60, spread:50, origin:{ y:0.6 }, colors:[ getComputedStyle(document.documentElement).getPropertyValue('--accent1').trim(), getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(), "#ffffff" ] }); }
+    document.getElementById('nextBtn').disabled=false;
+  }
+
+  function nextQ(){ qidx++; loadQ(); }
+
+  function showResult(){
+    document.getElementById('quiz-screen').style.display='none';
+    document.getElementById('result-screen').style.display='block';
+    const pct = Math.round(correctCount/quizData.length*100);
+    document.getElementById('scorePct').textContent = pct + '%';
+    document.getElementById('corr').textContent = correctCount;
+    document.getElementById('wrng').textContent = quizData.length - correctCount;
+    document.getElementById('msg').textContent =
+      pct>=80 ? '🏆 Excellent! You’re a Lighter Pro!' :
+      pct>=60 ? '👏 Great job! You know your stuff!' :
+      pct>=40 ? '👍 Nice try! Keep improving!' :
+      '💪 Keep practising — you’ll get better!';
+  }
+
+  function restartQuiz(){ qidx=0; correctCount=0; document.getElementById('result-screen').style.display='none'; document.getElementById('start-screen').style.display='block'; }
+
+  /***** Init default view *****/
+  document.getElementById('nav-explorer').classList.add('active');
+  // end script
   </script>
 </body>
 </html>
