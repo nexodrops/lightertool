@@ -52,8 +52,14 @@
       color: var(--text-light);
       font-size:1.1rem;
     }
-    .section { padding:30px; display:none; }
-    .section.active { display:block; animation: fadeIn 0.4s var(--transition); }
+    .section {
+      padding:30px;
+      display:none;
+    }
+    .section.active {
+      display:block;
+      animation: fadeIn 0.4s var(--transition);
+    }
     @keyframes fadeIn {
       from { opacity:0; transform: translateY(20px); }
       to   { opacity:1; transform: translateY(0); }
@@ -80,6 +86,7 @@
       transition: background var(--transition), transform var(--transition);
     }
     .btn:hover { background: var(--accent1); transform: translateY(-2px); }
+    .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--text-light); }
     .loader {
       display:flex;
       justify-content:center;
@@ -116,13 +123,7 @@
     .option.correct { border-color:#51cf66; background:rgba(81,207,102,0.15); }
     .option.incorrect { border-color:#f03e3e; background:rgba(240,62,62,0.15); }
     .feedback { text-align:center; margin-top:22px; font-size:1rem; font-weight:600; display:none; }
-
-    /* 🔽 updated padding for results section */
-    .results {
-      text-align:center;
-      padding:40px 30px 80px; /* extra bottom padding added here */
-    }
-
+    .results { text-align:center; padding:40px 30px; }
     .results .score {
       font-size:3.4rem;
       background: linear-gradient(45deg, var(--accent2), var(--accent1));
@@ -132,6 +133,12 @@
     }
     .results .message { font-size:1.3rem; color: var(--text-light); margin-bottom:24px; }
     #chartContainer { width:100%; max-width:480px; margin:0 auto 30px; }
+    @media(max-width:600px){
+      .header h1 { font-size:2.2rem; }
+      .intro h2 { font-size:1.6rem; }
+      .question-card h3 { font-size:1.2rem; }
+      .btn { padding:12px 28px; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -139,8 +146,9 @@
 <body>
   <div class="container">
 
+    <!-- Top Referral Link Section (updated to lighter.xyz) -->
     <div style="text-align:center; padding:20px; background: var(--card-bg);">
-      <a href="https://lighter.xyz/" target="_blank" style="
+      <a href="https://app.lighter.xyz/" target="_blank" style="
             font-size:1.2rem;
             color: var(--accent2);
             text-decoration:none;
@@ -152,14 +160,15 @@
 
     <div class="header">
       <h1>Lighter IQ Challenge</h1>
-      <p>Test your knowledge on Lighter, ZK infrastructure & DeFi insights</p>
+      <p>Test your knowledge on Lighter, ZK infrastructure & DeFi Exchange insights</p>
     </div>
 
+    <!-- Start / Intro Screen -->
     <div id="start-screen" class="section active">
       <div class="intro">
         <h2>Project Overview</h2>
         <p>
-          Welcome to the <strong>Lighter IQ Challenge</strong> — an interactive quiz crafted to test your understanding of the Lighter ecosystem and its core features. Dive in and test your knowledge!
+          Welcome to the <strong>Lighter IQ Challenge</strong> — an interactive quiz crafted to test your understanding of the Lighter decentralized exchange and its core features. Dive in and test your knowledge!
         </p>
       </div>
       <div style="text-align:center">
@@ -167,11 +176,13 @@
       </div>
     </div>
 
+    <!-- Loading Screen -->
     <div id="loading-screen" class="section">
       <div class="loader"><span></span><span></span><span></span></div>
       <p style="text-align:center; color: var(--text-muted); margin-top:10px;">Loading questions…</p>
     </div>
 
+    <!-- Quiz Screen -->
     <div id="quiz-screen" class="section">
       <div class="question-counter"><span id="cur">1</span> / <span id="tot">10</span></div>
       <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
@@ -183,18 +194,20 @@
       <div style="text-align:center"><button id="nextBtn" class="btn" onclick="nextQ()" disabled>Next</button></div>
     </div>
 
+    <!-- Results Screen -->
     <div id="result-screen" class="section results">
       <div class="score" id="scorePct">0%</div>
       <div class="message" id="msg"></div>
       <div id="chartContainer"><canvas id="resultChart"></canvas></div>
       <p>Correct: <span id="corr">0</span> | Wrong: <span id="wrng">0</span> | Total: <span id="total">10</span></p>
 
-      <!-- 🔽 added margin-top here to lower Play Again button -->
-      <div style="text-align:center; margin-top:60px;">
+      <!-- Adjusted Play Again button (with margin-top:40px) -->
+      <div style="text-align:center; margin-top:40px;">
         <button class="btn" onclick="restartQuiz()">Play Again</button>
       </div>
     </div>
 
+    <!-- Bottom “Created By” Section -->
     <div style="padding:20px 0; text-align:center; background: var(--card-bg);">
       <span style="color: var(--text-muted); font-size:0.9rem;">Created by</span>
       <a href="https://x.com/nexodrops" target="_blank" style="
@@ -210,27 +223,169 @@
   </div>
 
   <script>
+    // 10 MCQs about Lighter (correct answers are zero-based indices)
     const quizData = [
-      { q: "What type of exchange is Lighter described as?", o: ["Centralized exchange (CEX)", "Fully verifiable decentralized exchange built with custom ZK infrastructure", "Peer-to-peer only exchange", "Traditional broker‐dealer platform"], c: 1 },
-      { q: "Lighter is built on top of which blockchain?", o: ["Bitcoin", "Solana", "Ethereum", "Polkadot"], c: 2 },
-      { q: "What is one of the key focuses of Lighter’s infrastructure?", o: ["High trading fees", "Low latency and high throughput", "Manual settlement only", "Off-chain only trades with no proofs"], c: 1 },
-      { q: "Which mechanism does Lighter use to ensure the correctness of operations like order matching and liquidations?", o: ["Trusted third party audit only", "Manual human verification", "Zero-knowledge (ZK) proofs", "No verification mechanism"], c: 2 },
-      { q: "According to the site, what is one benefit for retail traders using Lighter?", o: ["High minimum deposits", "Zero fees for retail traders", "Only institutional access", "Mandatory subscription fees"], c: 1 },
-      { q: "The site says that Lighter processes how many orders and cancels per second?", o: ["A handful of orders per second", "Tens of thousands of orders and cancels per second", "Thousands of orders per hour", "Millions of orders per minute"], c: 1 },
-      { q: "With Lighter, who remains in control of the user’s funds under its model?", o: ["Lighter holds all funds centrally", "A third-party custodian holds funds", "Users retain control via Ethereum layer and proofs", "Funds are held purely off-chain without on-chain settlement"], c: 2 },
-      { q: "Lighter’s base layer for proofs and state changes is:", o: ["Binance Smart Chain", "Solana", "Ethereum", "Tezos"], c: 2 },
-      { q: "According to the website, what ensures there is no censorship or favoritism in trade matching?", o: ["Manual audit every trade", "Trades match by price-time priority with cryptographic proofs", "Trades only done during business hours", "Matching engine controlled by a central authority"], c: 1 },
-      { q: "One of the features of Lighter’s infrastructure is:", o: ["All operations are off-chain and non-verifiable", "Matching orders and proving correctness is highly optimized for low cost", "High latency but very low cost", "Only spot trading is supported"], c: 1 }
+      {
+        q: "What type of exchange is Lighter described as?",
+        o: [
+          "Centralized exchange (CEX)",
+          "Fully verifiable decentralized exchange built with custom ZK infrastructure",
+          "Peer-to-peer only exchange",
+          "Traditional broker‐dealer platform"
+        ],
+        c: 1
+      },
+      {
+        q: "Lighter is built on top of which blockchain?",
+        o: ["Bitcoin", "Solana", "Ethereum", "Polkadot"],
+        c: 2
+      },
+      {
+        q: "What is one of the key focuses of Lighter’s infrastructure?",
+        o: ["High trading fees", "Low latency and high throughput", "Manual settlement only", "Off-chain only trades with no proofs"],
+        c: 1
+      },
+      {
+        q: "Which mechanism does Lighter use to ensure the correctness of operations like order matching and liquidations?",
+        o: ["Trusted third party audit only", "Manual human verification", "Zero-knowledge (ZK) proofs", "No verification mechanism"],
+        c: 2
+      },
+      {
+        q: "According to the site, what is one benefit for retail traders using Lighter?",
+        o: ["High minimum deposits", "Zero fees for retail traders", "Only institutional access", "Mandatory subscription fees"],
+        c: 1
+      },
+      {
+        q: "The site says that Lighter processes how many orders and cancels per second (or at that scale)?",
+        o: ["A handful of orders per second", "Tens of thousands of orders and cancels per second", "Thousands of orders per hour", "Millions of orders per minute"],
+        c: 1
+      },
+      {
+        q: "With Lighter, who remains in control of the user’s funds under its model?",
+        o: ["Lighter holds all funds centrally", "A third-party custodian holds funds", "Users retain control via Ethereum layer and proofs", "Funds are held purely off-chain without on-chain settlement"],
+        c: 2
+      },
+      {
+        q: "Lighter’s base layer for proofs and state changes is:",
+        o: ["Binance Smart Chain", "Solana", "Ethereum", "Tezos"],
+        c: 2
+      },
+      {
+        q: "According to the website, what ensures there is no censorship or favoritism in trade matching?",
+        o: ["Manual audit every trade", "Trades match by price-time priority with cryptographic proofs", "Trades only done during business hours", "Matching engine controlled by a central authority"],
+        c: 1
+      },
+      {
+        q: "One of the features of Lighter’s infrastructure is:",
+        o: ["All operations are off-chain and non-verifiable", "Matching orders and proving correctness is highly optimized for low cost", "High latency but very low cost", "Only spot trading is supported"],
+        c: 1
+      }
     ];
 
-    let idx=0, correctCount=0;
-    function goToLoading(){document.getElementById('start-screen').classList.remove('active');document.getElementById('loading-screen').classList.add('active');setTimeout(()=>{document.getElementById('loading-screen').classList.remove('active');document.getElementById('quiz-screen').classList.add('active');document.getElementById('tot').textContent=quizData.length;loadQ();},700);}
-    function loadQ(){if(idx>=quizData.length)return showResult();const q=quizData[idx];document.getElementById('cur').textContent=idx+1;document.getElementById('qtext').textContent=q.q;const box=document.getElementById('optbox');box.innerHTML='';q.o.forEach((opt,i)=>{const div=document.createElement('div');div.className='option';div.textContent=opt;div.onclick=()=>selectOpt(i);box.appendChild(div);});document.getElementById('fill').style.width=(idx/quizData.length*100)+'%';document.getElementById('nextBtn').disabled=true;}
-    function selectOpt(i){const q=quizData[idx];const opts=document.querySelectorAll('.option');opts.forEach((el,j)=>{el.style.pointerEvents='none';if(j===q.c)el.classList.add('correct');else if(j===i&&i!==q.c)el.classList.add('incorrect');});if(i===q.c){correctCount++;confetti({particleCount:100,spread:70,origin:{y:0.6},colors:[getComputedStyle(document.documentElement).getPropertyValue('--accent1').trim(),getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(),"#ffffff"]});}document.getElementById('nextBtn').disabled=false;}
-    function nextQ(){idx++;loadQ();}
-    function showResult(){document.getElementById('quiz-screen').classList.remove('active');document.getElementById('result-screen').classList.add('active');const pct=Math.round(correctCount/quizData.length*100);document.getElementById('scorePct').textContent=pct+'%';document.getElementById('corr').textContent=correctCount;document.getElementById('wrng').textContent=quizData.length-correctCount;document.getElementById('msg').textContent=pct>=80?'🏆 Excellent! You’re a Lighter Pro!':pct>=60?'👏 Great job! You know your stuff!':pct>=40?'👍 Nice try! Keep improving!':'💪 Keep practising — you’ll get better!';renderResultChart(correctCount,quizData.length-correctCount);}
-    function renderResultChart(corr,wrong){const ctx=document.getElementById('resultChart').getContext('2d');new Chart(ctx,{type:'doughnut',data:{labels:['Correct','Wrong'],datasets:[{data:[corr,wrong],backgroundColor:['#51cf66','#f03e3e'],hoverOffset:10}]},options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.documentElement).getPropertyValue('--text-light').trim()}},tooltip:{callbacks:{label:(ctx)=>ctx.label+': '+ctx.parsed}}}}});}
-    function restartQuiz(){idx=0;correctCount=0;document.getElementById('result-screen').classList.remove('active');document.getElementById('start-screen').classList.add('active');}
+    let idx = 0;
+    let correctCount = 0;
+
+    function goToLoading(){
+      document.getElementById('start-screen').classList.remove('active');
+      document.getElementById('loading-screen').classList.add('active');
+      setTimeout(()=>{
+        document.getElementById('loading-screen').classList.remove('active');
+        document.getElementById('quiz-screen').classList.add('active');
+        document.getElementById('tot').textContent = quizData.length;
+        loadQ();
+      }, 700);
+    }
+
+    function loadQ(){
+      if(idx >= quizData.length) return showResult();
+      const q = quizData[idx];
+      document.getElementById('cur').textContent = idx + 1;
+      document.getElementById('qtext').textContent = q.q;
+      const box = document.getElementById('optbox');
+      box.innerHTML = '';
+      q.o.forEach((opt,i)=>{
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.textContent = opt;
+        div.onclick = ()=> selectOpt(i);
+        box.appendChild(div);
+      });
+      document.getElementById('fill').style.width = (idx/quizData.length*100)+'%';
+      document.getElementById('nextBtn').disabled = true;
+      const fb = document.getElementById('fb');
+      fb.style.display='none';
+      fb.textContent='';
+      fb.className='feedback';
+    }
+
+    function selectOpt(i){
+      const q = quizData[idx];
+      const opts = document.querySelectorAll('.option');
+      opts.forEach((el,j)=>{
+        el.style.pointerEvents='none';
+        if(j===q.c) el.classList.add('correct');
+        else if(j===i && i!==q.c) el.classList.add('incorrect');
+      });
+      if(i===q.c){
+        correctCount++;
+        confetti({
+          particleCount:100,
+          spread:70,
+          origin:{ y:0.6 },
+          colors:[ getComputedStyle(document.documentElement).getPropertyValue('--accent1').trim(), getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(), "#ffffff" ]
+        });
+      }
+      document.getElementById('nextBtn').disabled=false;
+    }
+
+    function nextQ(){
+      idx++;
+      loadQ();
+    }
+
+    function showResult(){
+      document.getElementById('quiz-screen').classList.remove('active');
+      document.getElementById('result-screen').classList.add('active');
+      const pct = Math.round(correctCount/quizData.length*100);
+      document.getElementById('scorePct').textContent = pct + '%';
+      document.getElementById('corr').textContent = correctCount;
+      document.getElementById('wrng').textContent = quizData.length - correctCount;
+      document.getElementById('msg').textContent =
+        pct>=80 ? '🏆 Excellent! You’re a Lighter Pro!' :
+        pct>=60 ? '👏 Great job! You know your stuff!' :
+        pct>=40 ? '👍 Nice try! Keep improving!' :
+        '💪 Keep practising — you’ll get better!';
+      renderResultChart(correctCount, quizData.length-correctCount);
+    }
+
+    function renderResultChart(corr, wrong){
+      const ctx = document.getElementById('resultChart').getContext('2d');
+      new Chart(ctx, {
+        type:'doughnut',
+        data:{
+          labels:['Correct','Wrong'],
+          datasets:[{
+            data:[corr,wrong],
+            backgroundColor:['#51cf66','#f03e3e'],
+            hoverOffset:10
+          }]
+        },
+        options:{
+          cutout:'65%',
+          plugins:{
+            legend:{ position:'bottom', labels:{ color: getComputedStyle(document.documentElement).getPropertyValue('--text-light').trim() } },
+            tooltip:{ callbacks:{ label:(ctx)=> ctx.label + ': ' + ctx.parsed } }
+          }
+        }
+      });
+    }
+
+    function restartQuiz(){
+      idx=0; correctCount=0;
+      document.getElementById('result-screen').classList.remove('active');
+      document.getElementById('start-screen').classList.add('active');
+    }
   </script>
+
 </body>
 </html>
