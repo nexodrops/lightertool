@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glider — IQ Challenge + Explorer + Leaderboard</title>
+  <title>Lighter — IQ Challenge + Explorer + Leaderboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -150,9 +150,9 @@
 
     <div class="header">
       <div class="brand">
-        <div class="logo">G</div>
+        <div class="logo">L</div>
         <div class="title">
-          <h1>Glider Hub</h1>
+          <h1>Lighter Hub</h1>
           <p>IQ Quiz • Wallet Explorer • Live Leaderboard</p>
         </div>
       </div>
@@ -167,11 +167,11 @@
     <div class="content">
       <div class="main">
 
-        <!-- QUIZ SECTION (original) -->
+        <!-- QUIZ SECTION (updated for Lighter) -->
         <div id="quiz-section" class="section active panel">
           <div class="intro">
-            <h2>Glider IQ Challenge</h2>
-            <p>Test your knowledge on Glider, Beta Points & DeFi insights — quick 10-question quiz.</p>
+            <h2>Lighter IQ Challenge</h2>
+            <p>Test your knowledge about <strong>Lighter</strong> — quick 10-question quiz based on lighter.xyz</p>
           </div>
 
           <div id="start-screen">
@@ -276,7 +276,7 @@
         <div class="panel">
           <h4 style="margin-top:0">Quick Links</h4>
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
-            <a class="btn ghost" href="https://glider.fi/?invite=f33c4abc" target="_blank">Open Glider</a>
+            <a class="btn ghost" href="https://lighter.xyz/" target="_blank">Open Lighter</a>
             <button class="btn ghost" onclick="showSection('quiz')">Back to Quiz</button>
             <button class="btn ghost" onclick="showSection('leaderboard')">Open Leaderboard</button>
           </div>
@@ -284,7 +284,9 @@
 
         <div class="panel" style="margin-top:12px;">
           <h4 style="margin-top:0">About</h4>
-          <p class="small">This page bundles a quiz, an address explorer and a simulated real-time leaderboard — ideal for prototype/demo. Integrate your APIs to replace mock data.</p>
+          <p class="small">
+            Lighter হল একটি fully-verifiable decentralized exchange infrastructure যা Ethereum-এর উপর নির্মিত। এটি Zero-Knowledge proofs ব্যবহার করে order matching, liquidations এবং state updates-এর correctness প্রমাণ করে — ফলে ব্যবহারকারীরা নিজেদের ফান্ড নিয়ন্ত্রণ রাখে এবং matching engine cryptographically verifiable হয়। মূলভাবে লক্ষ্য: low latency, high throughput এবং on-chain verifiability কনজয়েনশনহীনভাবে প্রদান করা।
+          </p>
         </div>
       </aside>
 
@@ -330,19 +332,19 @@
     }
 
     /*******************************
-     * QUIZ (original behaviour)
+     * QUIZ (Lighter questions)
      *******************************/
     const quizData = [
-      { q: "What is the main purpose of Beta Points in Glider?", o: ["To reward early participation in the beta period","To function as the final token immediately","To replace portfolio values","To serve as referral credits only"], c:0 },
-      { q: "How many Beta Points do you earn per dollar deposited per day in Glider?", o:["0.5 points","1 point","2 points","5 points"], c:1 },
-      { q: "From what date are Beta Points being tracked on Glider?", o:["January 1, 2025","April 1, 2025","July 1, 2025","September 1, 2025"], c:2 },
-      { q: "Where can you view your Beta Points in Glider?", o:["Only via email report","On the dashboard UI","On a downloadable spreadsheet","In the mobile app only"], c:1 },
-      { q: "What happens to Beta Points once the Glider public launch occurs?", o:["They expire.","They convert into permanent points (conversion rate TBA)","They become tokens immediately.","They become referral credits only."], c:1 },
-      { q: "Which of the following best describes the status of Glider during Beta Points accumulation?", o:["Fully launched public product","Closed beta / early access","No deposit required","Referral only program"], c:1 },
-      { q: "If you deposit $500 for a week in Glider during the beta period, how many Beta Points would you approximately earn (ignoring portfolio value change)?", o:["~500 points","~3,500 points","~7,000 points","~1,000 points"], c:1 },
-      { q: "Which action is *not* explicitly required to earn Beta Points according to the FAQ?", o:["Join Discord","Deposit funds","Maintain deposit over time","Create multiple portfolios"], c:0 },
-      { q: "Does portfolio value change affect the number of Beta Points earned?", o:["No — it remains fixed.","Yes — points adjust with portfolio value.","Only if portfolio is archived.","Only if you withdraw."], c:1 },
-      { q: "Is there retroactive credit for activity before the tracking date?", o:["Yes — everything counts.","Only for referral activity.","No — activity before start date isn’t counted.","Yes — but only for large deposits."], c:2 }
+      { q: "What type of exchange is Lighter described as?", o: ["Centralized exchange (CEX)","Fully verifiable decentralized exchange built with custom ZK infrastructure","Peer-to-peer only exchange","Traditional broker-dealer platform"], c:1 },
+      { q: "Lighter is built on top of which blockchain?", o: ["Bitcoin","Solana","Ethereum","Polkadot"], c:2 },
+      { q: "What is one of the key focuses of Lighter’s infrastructure?", o: ["High trading fees","Low latency and high throughput","Manual settlement only","Off-chain only trades with no proofs"], c:1 },
+      { q: "Which mechanism does Lighter use to ensure the correctness of operations like order matching and liquidations?", o: ["Trusted third party audit only","Manual human verification","Zero-knowledge (ZK) proofs","No verification mechanism"], c:2 },
+      { q: "According to the site, what is one benefit for retail traders using Lighter?", o: ["High minimum deposits","Zero fees for retail traders","Only institutional access","Mandatory subscription fees"], c:1 },
+      { q: "The site says that Lighter processes how many orders and cancels per second (or at that scale)?", o: ["A handful of orders per second","Tens of thousands of orders and cancels per second","Thousands of orders per hour","Millions of orders per minute"], c:1 },
+      { q: "With Lighter, who remains in control of the user’s funds under its model?", o: ["Lighter holds all funds centrally","A third-party custodian holds funds","Users retain control via Ethereum layer and proofs","Funds are held purely off-chain without on-chain settlement"], c:2 },
+      { q: "Lighter’s base layer for proofs and state changes is:", o: ["Binance Smart Chain","Solana","Ethereum","Tezos"], c:2 },
+      { q: "According to the website, what ensures there is no censorship or favoritism in trade matching?", o: ["Manual audit every trade","Trades match by price-time priority with cryptographic proofs","Trades only done during business hours","Matching engine controlled by a central authority"], c:1 },
+      { q: "One of the features of Lighter’s infrastructure is:", o: ["All operations are off-chain and non-verifiable","Matching orders and proving correctness is highly optimized for low cost","High latency but very low cost","Only spot trading is supported"], c:1 }
     ];
     let qidx=0, correctCount=0;
 
@@ -411,7 +413,7 @@
       document.getElementById('corr').textContent = correctCount;
       document.getElementById('wrng').textContent = quizData.length - correctCount;
       document.getElementById('msg').textContent =
-        pct>=80 ? '🏆 Excellent! You’re a Glider Pro!' :
+        pct>=80 ? '🏆 Excellent! You’re a Lighter Pro!' :
         pct>=60 ? '👏 Great job! You know your stuff!' :
         pct>=40 ? '👍 Nice try! Keep improving!' :
         '💪 Keep practising — you’ll get better!';
@@ -448,12 +450,10 @@
 
     /*******************************
      * EXPLORER (mock, client-side)
-     * - fetchWallet() uses a mocked data generator.
-     * - Easy to replace: change fetchWallet to call real /api/wallet/:address
      *******************************/
     document.getElementById('simRange').addEventListener('input', (e)=> {
       document.getElementById('simLabel').textContent = 'Adj: ' + e.target.value + '%';
-      renderSimulator(); 
+      renderSimulator();
     });
 
     let currentPositions = [];
@@ -623,7 +623,7 @@
     // export CSV
     function downloadLeaderboard(){
       const rows = [['rank','wallet','pnl','volume'], ...leaderboard.map(r=>[r.rank,r.wallet,r.pnl,r.volume])];
-      const csv = rows.map(r => r.join(',')).join('\\n');
+      const csv = rows.map(r => r.join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -647,7 +647,7 @@
      *******************************/
     // show quiz by default already active
     // expose some globals for debugging
-    window._glider = { leaderboard, resetLeaderboard, startLeaderboardStream, fetchWallet, mockWalletData };
+    window._lighter = { leaderboard, resetLeaderboard, startLeaderboardStream, fetchWallet, mockWalletData };
   </script>
 </body>
 </html>
