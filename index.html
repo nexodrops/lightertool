@@ -42,9 +42,8 @@
 
     /* header */
     .header {
-      padding:28px 24px;
-      text-align:center;
-      background: linear-gradient(45deg, rgba(74,222,128,0.12), rgba(34,211,238,0.12));
+      padding:20px 24px;
+      background: linear-gradient(45deg, rgba(74,222,128,0.08), rgba(34,211,238,0.08));
       border-bottom:1px solid rgba(255,255,255,0.02);
       display:flex;
       gap:12px;
@@ -57,15 +56,15 @@
       align-items:center;
     }
     .logo {
-      width:48px;height:48px;border-radius:10px;background:#071425;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent1);
+      width:48px;height:48px;border-radius:10px;background:#071425;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent1); font-size:1.2rem;
     }
     .title {
       text-align:left;
     }
-    .title h1 { font-size:1.4rem; margin:0; letter-spacing:0.4px; }
-    .title p { margin:0;color:var(--text-muted);font-size:0.9rem; }
+    .title h1 { font-size:1.2rem; margin:0; letter-spacing:0.4px; }
+    .title p { margin:0;color:var(--text-muted);font-size:0.85rem; }
 
-    /* nav */
+    /* nav (top-right) */
     .nav {
       display:flex;gap:8px;align-items:center;
     }
@@ -75,28 +74,28 @@
     .nav button.active { background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#052023; border:none; font-weight:700; }
 
     /* content sections */
-    .content { padding:20px 24px; display:grid; grid-template-columns:1fr 420px; gap:20px; align-items:start; }
+    .content { padding:20px 24px; display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start; }
     .main { min-height:400px; }
     .panel { background:var(--card-bg); border-radius:12px; padding:18px; border:1px solid var(--border-color); }
 
-    /* styling from original quiz (reused) */
+    /* sections visibility */
     .section { display:none; }
     .section.active { display:block; animation: fadeIn 0.35s var(--transition); }
     @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
 
-    /* Quiz area (keep original look) */
+    /* Quiz area */
     .intro { text-align:center; }
-    .intro h2 { font-size:1.6rem; margin-bottom:8px; }
-    .intro p { font-size:0.98rem; line-height:1.6; color:var(--text-muted); margin-bottom:18px; }
+    .intro h2 { font-size:1.5rem; margin-bottom:8px; }
+    .intro p { font-size:0.96rem; line-height:1.6; color:var(--text-muted); margin-bottom:14px; }
 
     .btn {
-      padding:12px 26px; background: var(--accent2); color:#fff; font-weight:600; border:none; border-radius: 12px; cursor:pointer;
+      padding:10px 20px; background: var(--accent2); color:#fff; font-weight:600; border:none; border-radius: 12px; cursor:pointer;
     }
     .btn.ghost { background:transparent;border:1px solid rgba(255,255,255,0.04); color:var(--text-light); }
 
     /* loader */
-    .loader { display:flex; justify-content:center; align-items:center; height:140px; }
-    .loader span { width:12px; height:12px; margin:0 5px; background: var(--accent2); border-radius:50%; display:inline-block; animation: bounce 0.6s infinite alternate; }
+    .loader { display:flex; justify-content:center; align-items:center; height:120px; }
+    .loader span { width:10px; height:10px; margin:0 5px; background: var(--accent2); border-radius:50%; display:inline-block; animation: bounce 0.6s infinite alternate; }
     .loader span:nth-child(2){ animation-delay:0.15s; } .loader span:nth-child(3){ animation-delay:0.3s; }
 
     /* quiz components */
@@ -104,7 +103,7 @@
     .progress-bar { width:100%; height:8px; background: var(--border-color); border-radius:6px; overflow:hidden; margin-bottom:18px; }
     .progress-fill { height:100%; width:0%; background: var(--accent1); transition: width var(--transition); }
     .question-card { background: transparent; padding:16px; border-radius:8px; margin-bottom:20px; }
-    .question-card h3 { font-size:1.2rem; margin-bottom:12px; color: var(--text-light); }
+    .question-card h3 { font-size:1.12rem; margin-bottom:12px; color: var(--text-light); }
     .options { display:grid; gap:12px; }
     .option { padding:12px 14px; background:#222631; border:2px solid #2e343c; border-radius:12px; cursor:pointer; transition:all var(--transition); }
     .option:hover { transform:translateY(-2px); border-color:var(--accent1); }
@@ -125,13 +124,29 @@
     thead th { text-align:left; color:var(--text-muted); padding:8px 6px; font-weight:600; }
     tbody td { padding:10px 6px; border-top:1px solid rgba(255,255,255,0.02); }
 
-    .leaderboard-rows { max-height:480px; overflow:auto; border-radius:8px; }
+    .leaderboard-rows { max-height:380px; overflow:auto; border-radius:8px; }
     .small { font-size:12px; color:var(--text-muted); }
 
     /* result screen */
     .results { text-align:center; padding:20px; }
-    .results .score { font-size:2.6rem; margin:14px 0; background: linear-gradient(45deg, var(--accent2), var(--accent1)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .chart-box { width:100%; max-width:380px; margin:0 auto; }
+    .results .score { font-size:2.2rem; margin:14px 0; background: linear-gradient(45deg, var(--accent2), var(--accent1)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .chart-box { width:100%; max-width:360px; margin:0 auto; }
+
+    /* right sidebar quick links centered */
+    .quick-links {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:90px;
+      text-align:center;
+      border-radius:8px;
+      padding:12px;
+    }
+    .quick-links p { margin:0; font-weight:600; color:var(--text-light); }
+    .quick-action-list { display:flex; flex-direction:column; gap:8px; margin-top:10px; align-items:center; }
+
+    /* About simple box */
+    .about-simple p { margin:0; color:var(--text-muted); font-size:0.94rem; line-height:1.45; }
 
     /* footer */
     .footer { padding:14px; text-align:center; background: var(--card-bg); border-top:1px solid rgba(255,255,255,0.02); color:var(--text-muted); }
@@ -139,6 +154,7 @@
     @media(max-width:980px){
       .content { grid-template-columns:1fr; }
       .header { flex-direction:column; gap:12px; align-items:flex-start; }
+      .leaderboard-rows { max-height:260px; }
     }
   </style>
 
@@ -150,6 +166,7 @@
 
     <div class="header">
       <div class="brand">
+        <!-- left-side logo 'L' -->
         <div class="logo">L</div>
         <div class="title">
           <h1>Lighter Hub</h1>
@@ -157,55 +174,20 @@
         </div>
       </div>
 
+      <!-- top-right nav: Explorer -> Leaderboard -> Quiz -->
       <div class="nav" id="nav">
-        <button id="nav-quiz" class="active" onclick="showSection('quiz')">Quiz</button>
         <button id="nav-explorer" onclick="showSection('explorer')">Explorer</button>
         <button id="nav-leader" onclick="showSection('leaderboard')">Leaderboard</button>
+        <button id="nav-quiz" onclick="showSection('quiz')">Quiz</button>
       </div>
     </div>
 
     <div class="content">
+      <!-- LEFT / MAIN: Explorer (first), Leaderboard (second), Quiz (third) -->
       <div class="main">
 
-        <!-- QUIZ SECTION (updated for Lighter) -->
-        <div id="quiz-section" class="section active panel">
-          <div class="intro">
-            <h2>Lighter IQ Challenge</h2>
-            <p>Test your knowledge about <strong>Lighter</strong> — quick 10-question quiz based on lighter.xyz</p>
-          </div>
-
-          <div id="start-screen">
-            <p class="small" style="text-align:center; margin-bottom:10px;">Ready? Click start to begin the quiz.</p>
-            <div style="text-align:center"><button class="btn" onclick="goToLoading()">Start Quiz</button></div>
-          </div>
-
-          <div id="loading-screen" style="display:none;">
-            <div class="loader"><span></span><span></span><span></span></div>
-            <p style="text-align:center; color: var(--text-muted); margin-top:6px;">Loading questions…</p>
-          </div>
-
-          <div id="quiz-screen" style="display:none;">
-            <div class="question-counter"><span id="cur">1</span> / <span id="tot">10</span></div>
-            <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
-            <div class="question-card">
-              <h3 id="qtext"></h3>
-              <div class="options" id="optbox"></div>
-            </div>
-            <div id="fb" class="feedback"></div>
-            <div style="text-align:center; margin-top:12px;"><button id="nextBtn" class="btn ghost" onclick="nextQ()" disabled>Next</button></div>
-          </div>
-
-          <div id="result-screen" style="display:none;" class="results">
-            <div class="score" id="scorePct">0%</div>
-            <div class="message" id="msg"></div>
-            <div class="chart-box" id="chartContainer"><canvas id="resultChart"></canvas></div>
-            <p style="margin-top:8px;">Correct: <span id="corr">0</span> | Wrong: <span id="wrng">0</span> | Total: <span id="total">10</span></p>
-            <div style="text-align:center; margin-top:12px;"><button class="btn" onclick="restartQuiz()">Play Again</button></div>
-          </div>
-        </div>
-
-        <!-- EXPLORER SECTION -->
-        <div id="explorer-section" class="section panel">
+        <!-- EXPLORER SECTION (now first) -->
+        <div id="explorer-section" class="section active panel">
           <h3 style="margin-top:0">Wallet / Address Explorer</h3>
           <p class="small">Enter any EVM address to see mock open positions, margin, collateral and PnL. Replace the mock function with your API call to connect real data.</p>
 
@@ -246,7 +228,7 @@
           </div>
         </div>
 
-        <!-- LEADERBOARD SECTION -->
+        <!-- LEADERBOARD SECTION (now second) -->
         <div id="leaderboard-section" class="section panel">
           <h3 style="margin-top:0">Live Leaderboard — Top 200 (simulated)</h3>
           <p class="small">Real-time simulated leaderboard. Replace the simulation with your stream (Redis/Kafka/WebSocket) for production.</p>
@@ -269,23 +251,62 @@
           </div>
         </div>
 
-      </div>
+        <!-- QUIZ SECTION (now third) -->
+        <div id="quiz-section" class="section panel">
+          <div class="intro">
+            <h2>Lighter IQ Challenge</h2>
+            <p>Test your knowledge about <strong>Lighter</strong> — quick 10-question quiz based on lighter.xyz</p>
+          </div>
 
-      <!-- RIGHT SIDEBAR -->
-      <aside>
-        <div class="panel">
-          <h4 style="margin-top:0">Quick Links</h4>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
-            <a class="btn ghost" href="https://lighter.xyz/" target="_blank">Open Lighter</a>
-            <button class="btn ghost" onclick="showSection('quiz')">Back to Quiz</button>
-            <button class="btn ghost" onclick="showSection('leaderboard')">Open Leaderboard</button>
+          <div id="start-screen">
+            <p class="small" style="text-align:center; margin-bottom:10px;">Ready? Click start to begin the quiz.</p>
+            <div style="text-align:center"><button class="btn" onclick="goToLoading()">Start Quiz</button></div>
+          </div>
+
+          <div id="loading-screen" style="display:none;">
+            <div class="loader"><span></span><span></span><span></span></div>
+            <p style="text-align:center; color: var(--text-muted); margin-top:6px;">Loading questions…</p>
+          </div>
+
+          <div id="quiz-screen" style="display:none;">
+            <div class="question-counter"><span id="cur">1</span> / <span id="tot">10</span></div>
+            <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
+            <div class="question-card">
+              <h3 id="qtext"></h3>
+              <div class="options" id="optbox"></div>
+            </div>
+            <div id="fb" class="feedback"></div>
+            <div style="text-align:center; margin-top:12px;"><button id="nextBtn" class="btn ghost" onclick="nextQ()" disabled>Next</button></div>
+          </div>
+
+          <div id="result-screen" style="display:none;" class="results">
+            <div class="score" id="scorePct">0%</div>
+            <div class="message" id="msg"></div>
+            <div class="chart-box" id="chartContainer"><canvas id="resultChart"></canvas></div>
+            <p style="margin-top:8px;">Correct: <span id="corr">0</span> | Wrong: <span id="wrng">0</span> | Total: <span id="total">10</span></p>
+            <div style="text-align:center; margin-top:12px;"><button class="btn" onclick="restartQuiz()">Play Again</button></div>
           </div>
         </div>
 
-        <div class="panel" style="margin-top:12px;">
+      </div>
+
+      <!-- RIGHT SIDEBAR: Quick Links (centered text) + action buttons + About (simple English) -->
+      <aside>
+        <div class="panel quick-links">
+          <p style="font-size:1rem;">Quick Links</p>
+        </div>
+
+        <div class="panel" style="margin-top:12px; display:flex; flex-direction:column; gap:8px; align-items:center;">
+          <!-- Buttons in the specific order requested -->
+          <a class="btn ghost" href="https://lighter.xyz/" target="_blank" style="width:100%; text-align:center;">Open Lighter</a>
+          <button class="btn ghost" style="width:100%; text-align:center;" onclick="showSection('explorer')">Wallet Explorer</button>
+          <button class="btn ghost" style="width:100%; text-align:center;" onclick="showSection('leaderboard')">Lighter Leaderboard</button>
+        </div>
+
+        <div class="panel about-simple" style="margin-top:12px;">
           <h4 style="margin-top:0">About</h4>
-          <p class="small">
-            Lighter হল একটি fully-verifiable decentralized exchange infrastructure যা Ethereum-এর উপর নির্মিত। এটি Zero-Knowledge proofs ব্যবহার করে order matching, liquidations এবং state updates-এর correctness প্রমাণ করে — ফলে ব্যবহারকারীরা নিজেদের ফান্ড নিয়ন্ত্রণ রাখে এবং matching engine cryptographically verifiable হয়। মূলভাবে লক্ষ্য: low latency, high throughput এবং on-chain verifiability কনজয়েনশনহীনভাবে প্রদান করা।
+          <p>
+            Lighter is a decentralized trading infrastructure built on Ethereum. It uses zero-knowledge proofs to prove that orders, matches and state changes are correct. Users keep control of their funds while the system provides fast, verifiable trading operations.
           </p>
         </div>
       </aside>
@@ -314,11 +335,8 @@
      * Section navigation
      *******************************/
     function showSection(name){
-      // nav active
+      // nav active toggles for top-right nav
       document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-      document.getElementById('nav-quiz').classList.remove('active');
-      document.getElementById('nav-explorer').classList.remove('active');
-      document.getElementById('nav-leader').classList.remove('active');
       if (name === 'quiz') document.getElementById('nav-quiz').classList.add('active');
       if (name === 'explorer') document.getElementById('nav-explorer').classList.add('active');
       if (name === 'leaderboard') document.getElementById('nav-leader').classList.add('active');
@@ -349,6 +367,8 @@
     let qidx=0, correctCount=0;
 
     function goToLoading(){
+      // ensure nav reflects quiz when starting from anywhere
+      showSection('quiz');
       document.getElementById('start-screen').style.display='none';
       document.getElementById('loading-screen').style.display='block';
       setTimeout(()=>{
@@ -391,8 +411,8 @@
       if(i===q.c){
         correctCount++;
         confetti({
-          particleCount:80,
-          spread:60,
+          particleCount:60,
+          spread:50,
           origin:{ y:0.6 },
           colors:[ getComputedStyle(document.documentElement).getPropertyValue('--accent1').trim(), getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(), "#ffffff" ]
         });
@@ -645,7 +665,8 @@
     /*******************************
      * Initialize default view
      *******************************/
-    // show quiz by default already active
+    // set Explorer active in top nav by default
+    document.getElementById('nav-explorer').classList.add('active');
     // expose some globals for debugging
     window._lighter = { leaderboard, resetLeaderboard, startLeaderboardStream, fetchWallet, mockWalletData };
   </script>
