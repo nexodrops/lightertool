@@ -1,432 +1,653 @@
-// index.js
-// Single-file demo server for:
-// - Wallet Explorer (mocked) at /explorer/:address
-// - Live Leaderboard (mocked) at /leaderboard
-// - APIs: /api/wallet/:address, /api/leaderboard, /api/leaderboard/stream (SSE)
-// Run: npm install express cors && node index.js
-
-const express = require('express');
-const cors = require('cors');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-
-// -----------------------------
-// Utility helpers
-// -----------------------------
-function randHex(len = 8) {
-  return Math.random().toString(16).slice(2, 2 + len);
-}
-function fmt(n) {
-  if (typeof n !== 'number') return n;
-  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
-}
-function nowISO() {
-  return new Date().toISOString();
-}
-
-// -----------------------------
-// Mock APIs
-// -----------------------------
-
-// Wallet summary + positions (mock)
-app.get('/api/wallet/:address', (req, res) => {
-  const address = req.params.address || '';
-  if (!address || address.length < 3) {
-    return res.status(400).json({ error: 'Invalid address' });
-  }
-
-  const now = Date.now();
-
-  // Mock positions
-  const positions = [
-    {
-      id: `pos-${randHex(6)}`,
-      market: 'BTC-PERP',
-      side: 'LONG',
-      size: 0.35,
-      entryPrice: 63500,
-      markPrice: 63840,
-      collateral: 1800,
-      leverage: 5,
-      unrealizedPnl: +( (63840 - 63500) * 0.35 ).toFixed(2),
-      realizedPnl: 120,
-      liquidationPrice: 58750,
-      updatedAt: now
-    },
-    {
-      id: `pos-${randHex(6)}`,
-      market: 'SOL-PERP',
-      side: 'SHORT',
-      size: 95,
-      entryPrice: 142,
-      markPrice: 137,
-      collateral: 720,
-      leverage: 7,
-      unrealizedPnl: +( (142 - 137) * 95 ).toFixed(2),
-      realizedPnl: -18,
-      liquidationPrice: 170,
-      updatedAt: now
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glider — IQ Challenge + Explorer + Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #0e1118;
+      --card-bg: #1a1f2b;
+      --accent1: #4ade80;
+      --accent2: #22d3ee;
+      --text-light: #f1f3f5;
+      --text-muted: #8a8f99;
+      --border-color: #343a40;
+      --radius: 14px;
+      --transition: 0.3s ease;
     }
-  ];
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg-main);
+      color: var(--text-light);
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      padding: 20px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+    }
 
-  const summary = {
-    address,
-    equity: 15230.47,
-    marginUsed: 2520,
-    freeMargin: 12710.47,
-    marginRatio: +( (2520 / 15230.47) * 100 ).toFixed(2),
-    totalRealizedPnl: 450,
-    totalUnrealizedPnl: +(positions.reduce((s,p)=>s+(p.unrealizedPnl||0),0)).toFixed(2),
-    positionsCount: positions.length,
-    lastSeen: nowISO()
-  };
+    /* main container */
+    .container {
+      width:100%;
+      max-width:980px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      position: relative;
+    }
 
-  // small cache hint
-  res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=59');
-  return res.json({ summary, positions });
-});
+    /* header */
+    .header {
+      padding:28px 24px;
+      text-align:center;
+      background: linear-gradient(45deg, rgba(74,222,128,0.12), rgba(34,211,238,0.12));
+      border-bottom:1px solid rgba(255,255,255,0.02);
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .brand {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo {
+      width:48px;height:48px;border-radius:10px;background:#071425;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent1);
+    }
+    .title {
+      text-align:left;
+    }
+    .title h1 { font-size:1.4rem; margin:0; letter-spacing:0.4px; }
+    .title p { margin:0;color:var(--text-muted);font-size:0.9rem; }
 
-// Leaderboard snapshot (mock top N)
-app.get('/api/leaderboard', (req, res) => {
-  const limit = Math.min(parseInt(req.query.limit || '200', 10), 200);
-  const rows = Array.from({ length: limit }).map((_, i) => {
-    const rank = i + 1;
-    const wallet = '0x' + randHex(6) + (1000 + rank);
-    const pnl = +(Math.random() * 90000 - 15000).toFixed(2);
-    const volume = +(Math.random() * 300000).toFixed(2);
-    const roi = +(Math.random() * 600 - 100).toFixed(2);
-    return { rank, wallet, pnl, volume, roi };
-  });
-  res.setHeader('Cache-Control', 's-maxage=5, stale-while-revalidate=59');
-  return res.json({ rows, generatedAt: nowISO() });
-});
+    /* nav */
+    .nav {
+      display:flex;gap:8px;align-items:center;
+    }
+    .nav button {
+      background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text-light);padding:8px 12px;border-radius:10px;cursor:pointer;
+    }
+    .nav button.active { background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#052023; border:none; font-weight:700; }
 
-// -----------------------------
-// SSE stream for leaderboard
-// -----------------------------
-const sseClients = new Set();
+    /* content sections */
+    .content { padding:20px 24px; display:grid; grid-template-columns:1fr 420px; gap:20px; align-items:start; }
+    .main { min-height:400px; }
+    .panel { background:var(--card-bg); border-radius:12px; padding:18px; border:1px solid var(--border-color); }
 
-// Create a simple in-memory leaders list to update and stream
-let leaders = Array.from({ length: 50 }).map((_, i) => ({
-  rank: i + 1,
-  wallet: '0x' + randHex(6) + (1000 + i),
-  pnl: +(Math.random() * 80000 - 10000).toFixed(2)
-}));
+    /* styling from original quiz (reused) */
+    .section { display:none; }
+    .section.active { display:block; animation: fadeIn 0.35s var(--transition); }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
 
-app.get('/api/leaderboard/stream', (req, res) => {
-  // headers for SSE
-  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
-  res.setHeader('Cache-Control', 'no-cache, no-transform');
-  res.setHeader('Connection', 'keep-alive');
+    /* Quiz area (keep original look) */
+    .intro { text-align:center; }
+    .intro h2 { font-size:1.6rem; margin-bottom:8px; }
+    .intro p { font-size:0.98rem; line-height:1.6; color:var(--text-muted); margin-bottom:18px; }
 
-  // send initial comment
-  res.write(`: connected ${randHex(4)}\n\n`);
+    .btn {
+      padding:12px 26px; background: var(--accent2); color:#fff; font-weight:600; border:none; border-radius: 12px; cursor:pointer;
+    }
+    .btn.ghost { background:transparent;border:1px solid rgba(255,255,255,0.04); color:var(--text-light); }
 
-  // push snapshot initially
-  res.write(`data: ${JSON.stringify({ type: 'snapshot', leaders })}\n\n`);
+    /* loader */
+    .loader { display:flex; justify-content:center; align-items:center; height:140px; }
+    .loader span { width:12px; height:12px; margin:0 5px; background: var(--accent2); border-radius:50%; display:inline-block; animation: bounce 0.6s infinite alternate; }
+    .loader span:nth-child(2){ animation-delay:0.15s; } .loader span:nth-child(3){ animation-delay:0.3s; }
 
-  sseClients.add(res);
+    /* quiz components */
+    .question-counter { text-align:center; color: var(--text-muted); margin-bottom:12px; font-size:0.95rem; }
+    .progress-bar { width:100%; height:8px; background: var(--border-color); border-radius:6px; overflow:hidden; margin-bottom:18px; }
+    .progress-fill { height:100%; width:0%; background: var(--accent1); transition: width var(--transition); }
+    .question-card { background: transparent; padding:16px; border-radius:8px; margin-bottom:20px; }
+    .question-card h3 { font-size:1.2rem; margin-bottom:12px; color: var(--text-light); }
+    .options { display:grid; gap:12px; }
+    .option { padding:12px 14px; background:#222631; border:2px solid #2e343c; border-radius:12px; cursor:pointer; transition:all var(--transition); }
+    .option:hover { transform:translateY(-2px); border-color:var(--accent1); }
+    .option.correct { border-color:#51cf66; background:rgba(81,207,102,0.08); }
+    .option.incorrect { border-color:#f03e3e; background:rgba(240,62,62,0.06); }
 
-  // cleanup on close
-  req.on('close', () => {
-    sseClients.delete(res);
-  });
-});
+    .feedback { text-align:center; margin-top:10px; font-size:0.98rem; display:none; }
 
-// background update: every ~1500ms mutate random leader and broadcast delta
-setInterval(() => {
-  // mutate
-  const idx = Math.floor(Math.random() * leaders.length);
-  const delta = (Math.random() * 4000 - 2000); // +/- up to 2k
-  leaders[idx].pnl = +(leaders[idx].pnl + delta).toFixed(2);
+    /* explorer & leaderboard styles */
+    .explorer-controls { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+    .explorer-controls input[type="text"] { flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04); background:transparent;color:var(--text-light); }
+    .kpi-row { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+    .kpi { padding:10px 12px; background:#071427;border-radius:10px; border:1px solid rgba(255,255,255,0.02); min-width:140px; }
+    .kpi small { display:block; color:var(--text-muted); font-size:12px; }
+    .kpi strong { display:block; font-size:16px; margin-top:6px; }
 
-  // resort and reassign ranks
-  leaders.sort((a,b) => b.pnl - a.pnl);
-  leaders.forEach((l, i) => l.rank = i + 1);
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead th { text-align:left; color:var(--text-muted); padding:8px 6px; font-weight:600; }
+    tbody td { padding:10px 6px; border-top:1px solid rgba(255,255,255,0.02); }
 
-  // pick the changed leader and build payload
-  const changed = leaders[idx];
-  const payload = { type: 'update', wallet: changed.wallet, rank: changed.rank, pnl: changed.pnl, ts: Date.now() };
+    .leaderboard-rows { max-height:480px; overflow:auto; border-radius:8px; }
+    .small { font-size:12px; color:var(--text-muted); }
 
-  // broadcast to all clients
-  const payloadStr = `data: ${JSON.stringify(payload)}\n\n`;
-  for (const client of sseClients) {
-    try { client.write(payloadStr); } catch (e) { /* ignore */ }
-  }
-}, 1500);
+    /* result screen */
+    .results { text-align:center; padding:20px; }
+    .results .score { font-size:2.6rem; margin:14px 0; background: linear-gradient(45deg, var(--accent2), var(--accent1)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .chart-box { width:100%; max-width:380px; margin:0 auto; }
 
-// heartbeat comments to keep connections alive
-setInterval(() => {
-  const comment = `: heartbeat ${Date.now()}\n\n`;
-  for (const client of sseClients) {
-    try { client.write(comment); } catch(e) {}
-  }
-}, 20000);
+    /* footer */
+    .footer { padding:14px; text-align:center; background: var(--card-bg); border-top:1px solid rgba(255,255,255,0.02); color:var(--text-muted); }
 
-// -----------------------------
-// Frontend pages (simple HTML) 
-// -----------------------------
+    @media(max-width:980px){
+      .content { grid-template-columns:1fr; }
+      .header { flex-direction:column; gap:12px; align-items:flex-start; }
+    }
+  </style>
 
-// Home - small index
-app.get('/', (req, res) => {
-  res.send(`
-  <html>
-    <head><title>Glider Explorer — Demo</title>
-      <meta charset="utf-8" />
-      <style>
-        body{background:#071026;color:#e6eef8;font-family:Inter,system-ui,Arial;padding:28px}
-        a{color:#9fbec0}
-        .card{background:#071426;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-      </style>
-    </head>
-    <body>
-      <h2>Glider — Explorer Demo</h2>
-      <div class="card">
-        <p>Demo includes Wallet Explorer and Live Leaderboard (mock data + SSE).</p>
-        <ul>
-          <li><a href="/explorer/0x1234abcd">/explorer/0x1234abcd</a> — Wallet explorer (mock)</li>
-          <li><a href="/leaderboard">/leaderboard</a> — Live leaderboard (SSE)</li>
-          <li><a href="/api/leaderboard">/api/leaderboard</a> — JSON snapshot</li>
-        </ul>
-      </div>
-    </body>
-  </html>
-  `);
-});
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
 
-// Wallet explorer page (client fetches /api/wallet/:address)
-app.get('/explorer/:address', (req, res) => {
-  const address = req.params.address;
-  res.send(`
-  <!doctype html>
-  <html>
-    <head>
-      <meta charset="utf-8" />
-      <title>Explorer — ${address}</title>
-      <style>
-        body{background:#071026;color:#e6eef8;font-family:Inter,system-ui,Arial;padding:22px}
-        .wrap{max-width:1100px;margin:0 auto}
-        .small{font-size:13px;color:#9fbec0}
-        .card{background:#071426;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:12px}
-        table{width:100%;border-collapse:collapse}
-        th,td{padding:8px;text-align:left;font-size:13px}
-        thead th{color:#9fbec0}
-        tr + tr { border-top:1px solid rgba(255,255,255,0.02) }
-        .btn{background:#0ea5a0;color:#032626;padding:8px 10px;border-radius:8px;text-decoration:none}
-        input[type=range]{width:100%}
-      </style>
-    </head>
-    <body>
-      <div class="wrap">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h2>Address Explorer — ${address}</h2>
-          <a class="btn" href="/leaderboard">Open Leaderboard</a>
+    <div class="header">
+      <div class="brand">
+        <div class="logo">G</div>
+        <div class="title">
+          <h1>Glider Hub</h1>
+          <p>IQ Quiz • Wallet Explorer • Live Leaderboard</p>
         </div>
+      </div>
 
-        <div id="summary" class="card">Loading wallet summary…</div>
+      <div class="nav" id="nav">
+        <button id="nav-quiz" class="active" onclick="showSection('quiz')">Quiz</button>
+        <button id="nav-explorer" onclick="showSection('explorer')">Explorer</button>
+        <button id="nav-leader" onclick="showSection('leaderboard')">Leaderboard</button>
+      </div>
+    </div>
 
-        <div id="positions" class="card">Loading positions…</div>
+    <div class="content">
+      <div class="main">
 
-        <div class="card">
-          <h4 class="small">Quick PnL Simulator</h4>
-          <div style="margin-top:8px">
-            <label class="small">Adjust mark price by %</label>
-            <input id="adjRange" type="range" min="-10" max="10" step="0.1" value="0" />
-            <div class="small" id="adjLabel">Adj: 0%</div>
-            <div id="simResults" style="margin-top:10px"></div>
+        <!-- QUIZ SECTION (original) -->
+        <div id="quiz-section" class="section active panel">
+          <div class="intro">
+            <h2>Glider IQ Challenge</h2>
+            <p>Test your knowledge on Glider, Beta Points & DeFi insights — quick 10-question quiz.</p>
+          </div>
+
+          <div id="start-screen">
+            <p class="small" style="text-align:center; margin-bottom:10px;">Ready? Click start to begin the quiz.</p>
+            <div style="text-align:center"><button class="btn" onclick="goToLoading()">Start Quiz</button></div>
+          </div>
+
+          <div id="loading-screen" style="display:none;">
+            <div class="loader"><span></span><span></span><span></span></div>
+            <p style="text-align:center; color: var(--text-muted); margin-top:6px;">Loading questions…</p>
+          </div>
+
+          <div id="quiz-screen" style="display:none;">
+            <div class="question-counter"><span id="cur">1</span> / <span id="tot">10</span></div>
+            <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
+            <div class="question-card">
+              <h3 id="qtext"></h3>
+              <div class="options" id="optbox"></div>
+            </div>
+            <div id="fb" class="feedback"></div>
+            <div style="text-align:center; margin-top:12px;"><button id="nextBtn" class="btn ghost" onclick="nextQ()" disabled>Next</button></div>
+          </div>
+
+          <div id="result-screen" style="display:none;" class="results">
+            <div class="score" id="scorePct">0%</div>
+            <div class="message" id="msg"></div>
+            <div class="chart-box" id="chartContainer"><canvas id="resultChart"></canvas></div>
+            <p style="margin-top:8px;">Correct: <span id="corr">0</span> | Wrong: <span id="wrng">0</span> | Total: <span id="total">10</span></p>
+            <div style="text-align:center; margin-top:12px;"><button class="btn" onclick="restartQuiz()">Play Again</button></div>
           </div>
         </div>
 
-        <div class="small">Note: This demo uses mock data. Replace backend endpoints with your indexer/DB to show live data.</div>
-      </div>
+        <!-- EXPLORER SECTION -->
+        <div id="explorer-section" class="section panel">
+          <h3 style="margin-top:0">Wallet / Address Explorer</h3>
+          <p class="small">Enter any EVM address to see mock open positions, margin, collateral and PnL. Replace the mock function with your API call to connect real data.</p>
 
-      <script>
-        const address = "${address}";
-        async function load() {
-          const r = await fetch('/api/wallet/' + address);
-          const j = await r.json();
-          renderSummary(j.summary);
-          renderPositions(j.positions);
-          setupSimulator(j.positions);
-        }
-        function renderSummary(s){
-          document.getElementById('summary').innerHTML = \`
-            <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="margin-top:12px;" class="explorer-controls">
+            <input id="addrInput" type="text" placeholder="Enter wallet address (e.g. 0x1234...)" />
+            <button class="btn" onclick="fetchWallet()">Lookup</button>
+          </div>
+
+          <div id="explorer-result" style="margin-top:12px; display:none;">
+            <div class="kpi-row">
+              <div class="kpi"><small>Equity</small><strong id="kEquity">$0</strong></div>
+              <div class="kpi"><small>Margin Used</small><strong id="kMargin">$0</strong></div>
+              <div class="kpi"><small>Free Margin</small><strong id="kFree">$0</strong></div>
+              <div class="kpi"><small>Unrealized PnL</small><strong id="kUnreal">$0</strong></div>
+            </div>
+
+            <div class="panel" style="padding:12px;">
+              <h4 style="margin:6px 0">Open Positions</h4>
+              <div id="positionsTableWrap">
+                <table>
+                  <thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Entry</th><th>Mark</th><th>Unrealized</th><th>Collateral</th></tr></thead>
+                  <tbody id="posBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <h4 style="margin:6px 0">Quick PnL Simulator</h4>
+              <p class="small">Adjust mark price by % to see instant new unrealized PnL.</p>
+              <input id="simRange" type="range" min="-15" max="15" step="0.1" value="0" />
+              <div class="small" id="simLabel">Adj: 0%</div>
+              <div id="simResults" style="margin-top:8px;"></div>
+            </div>
+          </div>
+
+          <div id="explorer-empty" style="margin-top:18px;">
+            <p class="small">No address looked up yet. Try <code>0x1234abcd</code> or paste a real address.</p>
+          </div>
+        </div>
+
+        <!-- LEADERBOARD SECTION -->
+        <div id="leaderboard-section" class="section panel">
+          <h3 style="margin-top:0">Live Leaderboard — Top 200 (simulated)</h3>
+          <p class="small">Real-time simulated leaderboard. Replace the simulation with your stream (Redis/Kafka/WebSocket) for production.</p>
+
+          <div style="margin-top:12px;" class="panel" id="leaderPanel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div class="small">Showing top <strong id="lbCount">200</strong> — updates every ~1.5s</div>
               <div>
-                <div class="small">Equity</div>
-                <div style="font-weight:700;font-size:20px">$ \${(s.equity).toLocaleString()}</div>
-              </div>
-              <div style="text-align:right">
-                <div class="small">Margin Used</div>
-                <div style="font-weight:700">$ \${(s.marginUsed).toLocaleString()}</div>
+                <button class="btn ghost" onclick="resetLeaderboard()">Reset</button>
+                <button class="btn" onclick="downloadLeaderboard()">Export CSV</button>
               </div>
             </div>
-            <div style="margin-top:10px;display:flex;gap:10px">
-              <div style="padding:8px;background:#061427;border-radius:8px">
-                <div class="small">Free Margin</div>
-                <div style="font-weight:700">$ \${(s.freeMargin).toLocaleString()}</div>
-              </div>
-              <div style="padding:8px;background:#061427;border-radius:8px">
-                <div class="small">Unrealized PnL</div>
-                <div style="font-weight:700">$ \${Number(s.totalUnrealizedPnl).toFixed(2)}</div>
-              </div>
-            </div>
-          \`;
-        }
-        function renderPositions(positions){
-          const rows = positions.map(p=>\`
-            <tr>
-              <td>\${p.market}</td>
-              <td>\${p.side}</td>
-              <td>\${p.size}</td>
-              <td>$\${p.entryPrice}</td>
-              <td>$\${p.markPrice}</td>
-              <td>$\${Number(p.unrealizedPnl).toFixed(2)}</td>
-              <td>$\${p.collateral}</td>
-            </tr>
-          \`).join('');
-          document.getElementById('positions').innerHTML = \`
-            <h3>Open Positions (\${positions.length})</h3>
-            <div style="background:#061424;padding:8px;border-radius:8px">
+
+            <div class="leaderboard-rows" id="leaderboardWrap">
               <table>
-                <thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Entry</th><th>Mark</th><th>Unrealized</th><th>Collat</th></tr></thead>
-                <tbody>\${rows}</tbody>
+                <thead><tr><th style="width:60px">#</th><th>Wallet</th><th style="width:140px">PnL</th><th style="width:120px">Volume</th></tr></thead>
+                <tbody id="leaderBody"></tbody>
               </table>
             </div>
-          \`;
-        }
-
-        function setupSimulator(positions){
-          const range = document.getElementById('adjRange');
-          const label = document.getElementById('adjLabel');
-          const out = document.getElementById('simResults');
-          function update(){
-            const adj = Number(range.value);
-            label.innerText = 'Adj: ' + adj + '%';
-            out.innerHTML = positions.map(p=>{
-              const newMark = p.markPrice * (1 + adj/100);
-              const newUnreal = p.side === 'LONG' ? (newMark - p.entryPrice) * p.size : (p.entryPrice - newMark) * p.size;
-              return '<div style="padding:8px;border-radius:8px;background:#061022;margin-top:8px"><div style="font-weight:700">'+p.market+' — '+p.side+'</div><div class="small">Mark: $'+newMark.toFixed(2)+' • New Unrealized: $'+newUnreal.toFixed(2)+'</div></div>';
-            }).join('');
-          }
-          range.addEventListener('input', update);
-          update();
-        }
-
-        load();
-      </script>
-    </body>
-  </html>
-  `);
-});
-
-// Leaderboard UI page
-app.get('/leaderboard', (req, res) => {
-  res.send(`
-  <!doctype html>
-  <html>
-    <head>
-      <meta charset="utf-8" />
-      <title>Live Leaderboard</title>
-      <style>
-        body{background:#071026;color:#e6eef8;font-family:Inter,system-ui,Arial;padding:22px}
-        .wrap{max-width:1100px;margin:0 auto}
-        .card{background:#071426;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:12px}
-        table{width:100%;border-collapse:collapse}
-        th,td{padding:8px;text-align:left;font-size:13px}
-        thead th{color:#9fbec0}
-        tr + tr { border-top:1px solid rgba(255,255,255,0.02) }
-        a{color:#9fbec0}
-      </style>
-    </head>
-    <body>
-      <div class="wrap">
-        <h2>Live Leaderboard — Top 200 (Mock)</h2>
-        <div class="card">
-          <table id="board">
-            <thead><tr><th>#</th><th>Wallet</th><th>PnL</th><th>Volume</th></tr></thead>
-            <tbody id="tbody"></tbody>
-          </table>
+          </div>
         </div>
-        <div class="small">Stream: <code>/api/leaderboard/stream</code> (SSE). This is a demo mock stream — replace with your stream for production.</div>
+
       </div>
 
-      <script>
-        async function loadSnapshot(){
-          const r = await fetch('/api/leaderboard');
-          const j = await r.json();
-          const rows = j.rows.slice(0,200);
-          renderRows(rows);
-        }
-        function renderRows(rows){
-          const tbody = document.getElementById('tbody');
-          tbody.innerHTML = rows.map(r => \`<tr><td>\${r.rank}</td><td><a href="/explorer/\${r.wallet}">\${r.wallet}</a></td><td>$\${Number(r.pnl).toLocaleString()}</td><td>$\${Number(r.volume).toLocaleString()}</td></tr>\`).join('');
-        }
+      <!-- RIGHT SIDEBAR -->
+      <aside>
+        <div class="panel">
+          <h4 style="margin-top:0">Quick Links</h4>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+            <a class="btn ghost" href="https://glider.fi/?invite=f33c4abc" target="_blank">Open Glider</a>
+            <button class="btn ghost" onclick="showSection('quiz')">Back to Quiz</button>
+            <button class="btn ghost" onclick="showSection('leaderboard')">Open Leaderboard</button>
+          </div>
+        </div>
 
-        // SSE subscribe
-        function subscribeSSE(){
-          const es = new EventSource('/api/leaderboard/stream');
-          es.onmessage = (e) => {
-            try {
-              const payload = JSON.parse(e.data);
-              if (payload.type === 'snapshot') {
-                // on snapshot, render initial leaders
-                const rows = payload.leaders.map((l,i)=>({ rank: i+1, wallet: l.wallet, pnl: l.pnl, volume: 0 }));
-                renderRows(rows);
-              } else if (payload.type === 'update') {
-                // simple client side patch: find row and update pnl, then re-sort
-                patchUpdate(payload);
-              }
-            } catch(err) {
-              console.error('SSE parse error', err);
-            }
-          };
-          es.onerror = (err) => { console.error('SSE error', err); es.close(); }
-        }
+        <div class="panel" style="margin-top:12px;">
+          <h4 style="margin-top:0">About</h4>
+          <p class="small">This page bundles a quiz, an address explorer and a simulated real-time leaderboard — ideal for prototype/demo. Integrate your APIs to replace mock data.</p>
+        </div>
+      </aside>
 
-        function patchUpdate(payload){
-          const tbody = document.getElementById('tbody');
-          // read existing rows into array
-          const rows = Array.from(tbody.querySelectorAll('tr')).map(tr => {
-            return {
-              rank: Number(tr.children[0].innerText),
-              wallet: tr.children[1].innerText,
-              pnl: Number(tr.children[2].innerText.replace(/[^0-9.-]+/g,"")),
-              volume: Number(tr.children[3].innerText.replace(/[^0-9.-]+/g,""))
-            };
-          });
+    </div>
 
-          // find if wallet exists
-          const idx = rows.findIndex(r => r.wallet === payload.wallet);
-          if (idx >= 0) {
-            rows[idx].pnl = payload.pnl;
-          } else {
-            rows.push({ rank: rows.length + 1, wallet: payload.wallet, pnl: payload.pnl, volume: 0 });
+    <div class="footer">
+      <span style="color: var(--text-muted); font-size:0.9rem;">Created by</span>
+      <a href="https://x.com/nexodrops" target="_blank" style="margin-left:8px;color:var(--accent1);text-decoration:none;font-weight:600;">🐦 @nexodrops</a>
+    </div>
+
+  </div>
+
+  <!-- Script: quiz + explorer + leaderboard logic -->
+  <script>
+    /*******************************
+     * Utility helpers
+     *******************************/
+    const randHex = (len=6)=> Math.random().toString(16).slice(2, 2+len);
+    const fmt = (n) => {
+      if (typeof n !== 'number') return n;
+      return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    };
+
+    /*******************************
+     * Section navigation
+     *******************************/
+    function showSection(name){
+      // nav active
+      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('nav-quiz').classList.remove('active');
+      document.getElementById('nav-explorer').classList.remove('active');
+      document.getElementById('nav-leader').classList.remove('active');
+      if (name === 'quiz') document.getElementById('nav-quiz').classList.add('active');
+      if (name === 'explorer') document.getElementById('nav-explorer').classList.add('active');
+      if (name === 'leaderboard') document.getElementById('nav-leader').classList.add('active');
+
+      // hide all sections
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      // show selected
+      if (name === 'quiz') document.getElementById('quiz-section').classList.add('active');
+      if (name === 'explorer') document.getElementById('explorer-section').classList.add('active');
+      if (name === 'leaderboard') document.getElementById('leaderboard-section').classList.add('active');
+    }
+
+    /*******************************
+     * QUIZ (original behaviour)
+     *******************************/
+    const quizData = [
+      { q: "What is the main purpose of Beta Points in Glider?", o: ["To reward early participation in the beta period","To function as the final token immediately","To replace portfolio values","To serve as referral credits only"], c:0 },
+      { q: "How many Beta Points do you earn per dollar deposited per day in Glider?", o:["0.5 points","1 point","2 points","5 points"], c:1 },
+      { q: "From what date are Beta Points being tracked on Glider?", o:["January 1, 2025","April 1, 2025","July 1, 2025","September 1, 2025"], c:2 },
+      { q: "Where can you view your Beta Points in Glider?", o:["Only via email report","On the dashboard UI","On a downloadable spreadsheet","In the mobile app only"], c:1 },
+      { q: "What happens to Beta Points once the Glider public launch occurs?", o:["They expire.","They convert into permanent points (conversion rate TBA)","They become tokens immediately.","They become referral credits only."], c:1 },
+      { q: "Which of the following best describes the status of Glider during Beta Points accumulation?", o:["Fully launched public product","Closed beta / early access","No deposit required","Referral only program"], c:1 },
+      { q: "If you deposit $500 for a week in Glider during the beta period, how many Beta Points would you approximately earn (ignoring portfolio value change)?", o:["~500 points","~3,500 points","~7,000 points","~1,000 points"], c:1 },
+      { q: "Which action is *not* explicitly required to earn Beta Points according to the FAQ?", o:["Join Discord","Deposit funds","Maintain deposit over time","Create multiple portfolios"], c:0 },
+      { q: "Does portfolio value change affect the number of Beta Points earned?", o:["No — it remains fixed.","Yes — points adjust with portfolio value.","Only if portfolio is archived.","Only if you withdraw."], c:1 },
+      { q: "Is there retroactive credit for activity before the tracking date?", o:["Yes — everything counts.","Only for referral activity.","No — activity before start date isn’t counted.","Yes — but only for large deposits."], c:2 }
+    ];
+    let qidx=0, correctCount=0;
+
+    function goToLoading(){
+      document.getElementById('start-screen').style.display='none';
+      document.getElementById('loading-screen').style.display='block';
+      setTimeout(()=>{
+        document.getElementById('loading-screen').style.display='none';
+        document.getElementById('quiz-screen').style.display='block';
+        document.getElementById('tot').textContent = quizData.length;
+        loadQ();
+      }, 700);
+    }
+
+    function loadQ(){
+      if (qidx >= quizData.length) return showResult();
+      const q = quizData[qidx];
+      document.getElementById('cur').textContent = qidx + 1;
+      document.getElementById('qtext').textContent = q.q;
+      const box = document.getElementById('optbox');
+      box.innerHTML = '';
+      q.o.forEach((opt,i)=>{
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.textContent = opt;
+        div.onclick = ()=> selectOpt(i);
+        box.appendChild(div);
+      });
+      document.getElementById('fill').style.width = ((qidx)/quizData.length*100)+'%';
+      document.getElementById('nextBtn').disabled = true;
+      const fb = document.getElementById('fb');
+      fb.style.display='none';
+      fb.textContent='';
+    }
+
+    function selectOpt(i){
+      const q = quizData[qidx];
+      const opts = document.querySelectorAll('.option');
+      opts.forEach((el,j)=>{
+        el.style.pointerEvents='none';
+        if(j===q.c) el.classList.add('correct');
+        else if(j===i && i!==q.c) el.classList.add('incorrect');
+      });
+      if(i===q.c){
+        correctCount++;
+        confetti({
+          particleCount:80,
+          spread:60,
+          origin:{ y:0.6 },
+          colors:[ getComputedStyle(document.documentElement).getPropertyValue('--accent1').trim(), getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(), "#ffffff" ]
+        });
+      }
+      document.getElementById('nextBtn').disabled=false;
+    }
+
+    function nextQ(){
+      qidx++;
+      loadQ();
+    }
+
+    function showResult(){
+      document.getElementById('quiz-screen').style.display='none';
+      document.getElementById('result-screen').style.display='block';
+      const pct = Math.round(correctCount/quizData.length*100);
+      document.getElementById('scorePct').textContent = pct + '%';
+      document.getElementById('corr').textContent = correctCount;
+      document.getElementById('wrng').textContent = quizData.length - correctCount;
+      document.getElementById('msg').textContent =
+        pct>=80 ? '🏆 Excellent! You’re a Glider Pro!' :
+        pct>=60 ? '👏 Great job! You know your stuff!' :
+        pct>=40 ? '👍 Nice try! Keep improving!' :
+        '💪 Keep practising — you’ll get better!';
+      renderResultChart(correctCount, quizData.length-correctCount);
+    }
+
+    function renderResultChart(corr, wrong){
+      const ctx = document.getElementById('resultChart').getContext('2d');
+      new Chart(ctx, {
+        type:'doughnut',
+        data:{
+          labels:['Correct','Wrong'],
+          datasets:[{
+            data:[corr,wrong],
+            backgroundColor:['#51cf66','#f03e3e'],
+            hoverOffset:8
+          }]
+        },
+        options:{
+          cutout:'65%',
+          plugins:{
+            legend:{ position:'bottom', labels:{ color: getComputedStyle(document.documentElement).getPropertyValue('--text-light').trim() } },
+            tooltip:{ callbacks:{ label:(ctx)=> ctx.label + ': ' + ctx.parsed } }
           }
-          // sort desc by pnl and trim to 200
-          rows.sort((a,b)=>b.pnl - a.pnl);
-          const trimmed = rows.slice(0,200).map((r,i)=>({ ...r, rank: i+1 }));
-          // render
-          renderRows(trimmed);
         }
+      });
+    }
 
-        // initial
-        loadSnapshot();
-        subscribeSSE();
-      </script>
-    </body>
-  </html>
-  `);
-});
+    function restartQuiz(){
+      qidx=0; correctCount=0;
+      document.getElementById('result-screen').style.display='none';
+      document.getElementById('start-screen').style.display='block';
+    }
 
-// -----------------------------
-// Start server
-// -----------------------------
-app.listen(PORT, () => {
-  console.log(`Glider-demo server running on http://localhost:${PORT}`);
-  console.log(`Explorer example: http://localhost:${PORT}/explorer/0x1234abcd`);
-  console.log(`Leaderboard: http://localhost:${PORT}/leaderboard`);
-});
+    /*******************************
+     * EXPLORER (mock, client-side)
+     * - fetchWallet() uses a mocked data generator.
+     * - Easy to replace: change fetchWallet to call real /api/wallet/:address
+     *******************************/
+    document.getElementById('simRange').addEventListener('input', (e)=> {
+      document.getElementById('simLabel').textContent = 'Adj: ' + e.target.value + '%';
+      renderSimulator(); 
+    });
+
+    let currentPositions = [];
+
+    function mockWalletData(address){
+      // deterministic-ish mock based on address hash for variety
+      const base = (address && address.length) ? address.length * 37 : Math.floor(Math.random()*1000);
+      const now = Date.now();
+      const posA = {
+        id: 'pos-' + randHex(5),
+        market: 'BTC-PERP',
+        side: (base % 2 === 0) ? 'LONG' : 'SHORT',
+        size: +(0.2 + (base % 5) * 0.1).toFixed(2),
+        entryPrice: 62000 + (base % 4000),
+        markPrice: 62550 + (base % 1000),
+        collateral: +(1000 + (base % 300)).toFixed(2),
+        leverage: 5,
+        unrealizedPnl: 0,
+        realizedPnl: +(Math.random()*300 - 50).toFixed(2),
+        liquidationPrice: 58000 + (base % 2000),
+        updatedAt: now
+      };
+      posA.unrealizedPnl = +(((posA.side === 'LONG' ? posA.markPrice - posA.entryPrice : posA.entryPrice - posA.markPrice) * posA.size).toFixed(2));
+
+      const posB = {
+        id: 'pos-' + randHex(5),
+        market: 'SOL-PERP',
+        side: (base % 3 === 0) ? 'LONG' : 'SHORT',
+        size: +(50 + (base % 80)).toFixed(0),
+        entryPrice: 120 + (base % 40),
+        markPrice: 118 + (base % 30),
+        collateral: +(700 + (base % 180)).toFixed(2),
+        leverage: 6,
+        unrealizedPnl: 0,
+        realizedPnl: +(Math.random()*100 - 30).toFixed(2),
+        liquidationPrice: 170 + (base % 40),
+        updatedAt: now
+      };
+      posB.unrealizedPnl = +(((posB.side === 'LONG' ? posB.markPrice - posB.entryPrice : posB.entryPrice - posB.markPrice) * posB.size).toFixed(2));
+
+      const equity = +(10000 + (base * 7)).toFixed(2);
+      const marginUsed = +(posA.collateral + posB.collateral).toFixed(2);
+      const freeMargin = +(equity - marginUsed).toFixed(2);
+
+      return {
+        summary: {
+          address,
+          equity, marginUsed, freeMargin,
+          marginRatio: +(marginUsed / equity * 100).toFixed(2),
+          totalRealizedPnl: +(posA.realizedPnl + posB.realizedPnl).toFixed(2),
+          totalUnrealizedPnl: +(posA.unrealizedPnl + posB.unrealizedPnl).toFixed(2),
+          positionsCount: 2,
+          lastSeen: new Date().toISOString()
+        },
+        positions: [posA, posB]
+      };
+    }
+
+    function fetchWallet(){
+      const addr = document.getElementById('addrInput').value.trim();
+      if(!addr){
+        alert('Enter an address (e.g., 0x1234abcd)'); return;
+      }
+      // show loading
+      document.getElementById('explorer-empty').style.display='none';
+      document.getElementById('explorer-result').style.display='none';
+      const wrap = document.getElementById('explorer-result');
+      wrap.style.opacity = 0.6;
+      wrap.querySelector('#posBody').innerHTML = '<tr><td colspan="7" style="padding:12px;">Loading…</td></tr>';
+      // simulate network
+      setTimeout(()=>{
+        const data = mockWalletData(addr);
+        currentPositions = data.positions;
+        // populate KPIs
+        document.getElementById('kEquity').textContent = '$' + fmt(data.summary.equity);
+        document.getElementById('kMargin').textContent = '$' + fmt(data.summary.marginUsed);
+        document.getElementById('kFree').textContent = '$' + fmt(data.summary.freeMargin);
+        document.getElementById('kUnreal').textContent = '$' + fmt(data.summary.totalUnrealizedPnl);
+        // positions table
+        const tbody = document.getElementById('posBody');
+        tbody.innerHTML = data.positions.map(p => `
+          <tr>
+            <td>${p.market}</td>
+            <td>${p.side}</td>
+            <td>${p.size}</td>
+            <td>$${fmt(p.entryPrice)}</td>
+            <td>$${fmt(p.markPrice)}</td>
+            <td>$${fmt(p.unrealizedPnl)}</td>
+            <td>$${fmt(p.collateral)}</td>
+          </tr>
+        `).join('');
+        wrap.style.opacity = 1;
+        document.getElementById('explorer-result').style.display='block';
+        renderSimulator();
+      }, 450);
+    }
+
+    function renderSimulator(){
+      const adj = Number(document.getElementById('simRange').value);
+      document.getElementById('simLabel').textContent = 'Adj: ' + adj + '%';
+      const out = document.getElementById('simResults');
+      if(!currentPositions || currentPositions.length===0){ out.innerHTML = '<div class="small">No positions to simulate.</div>'; return; }
+      out.innerHTML = currentPositions.map(p=>{
+        const newMark = p.markPrice * (1 + adj/100);
+        const newUnreal = (p.side === 'LONG' ? (newMark - p.entryPrice) * p.size : (p.entryPrice - newMark) * p.size);
+        return `<div style="padding:10px;background:#061022;border-radius:8px;margin-top:8px">
+          <div style="font-weight:700">${p.market} — ${p.side}</div>
+          <div class="small">Mark: $${fmt(newMark)} • New Unrealized: $${fmt(newUnreal)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    /*******************************
+     * LEADERBOARD (client-side simulated stream)
+     *******************************/
+    // create initial top-200 dataset
+    let leaderboard = Array.from({ length: 200 }).map((_,i)=>{
+      const wallet = '0x' + randHex(6) + (1000+i);
+      const pnl = +(Math.random()*90000 - 20000).toFixed(2);
+      const volume = +(Math.random()*400000).toFixed(2);
+      return { rank: i+1, wallet, pnl, volume };
+    });
+
+    // render function
+    function renderLeaderboard(){
+      const body = document.getElementById('leaderBody');
+      body.innerHTML = leaderboard.slice(0,200).map(r => `
+        <tr>
+          <td style="padding:6px 8px">${r.rank}</td>
+          <td style="padding:6px 8px"><a href="#" onclick="prefillExplorer('${r.wallet}');return false;" style="color:var(--accent2);text-decoration:none">${r.wallet}</a></td>
+          <td style="padding:6px 8px">$${fmt(r.pnl)}</td>
+          <td style="padding:6px 8px">$${fmt(r.volume)}</td>
+        </tr>
+      `).join('');
+      document.getElementById('lbCount').textContent = leaderboard.length;
+    }
+
+    // simulate live updates: every ~1.5s mutate a random wallet pnl and re-sort
+    let lbTimer = null;
+    function startLeaderboardStream(){
+      if(lbTimer) clearInterval(lbTimer);
+      lbTimer = setInterval(()=>{
+        // random changes on a few wallets to show movement
+        for(let k=0;k<3;k++){
+          const idx = Math.floor(Math.random()*leaderboard.length);
+          const delta = (Math.random()*8000 - 4000); // +/- up to 4k
+          leaderboard[idx].pnl = +(leaderboard[idx].pnl + delta).toFixed(2);
+          leaderboard[idx].volume = +(leaderboard[idx].volume + Math.abs(delta)*2).toFixed(2);
+        }
+        // resort desc by pnl
+        leaderboard.sort((a,b)=>b.pnl - a.pnl);
+        leaderboard.forEach((l,i)=> l.rank = i+1);
+        renderLeaderboard();
+      }, 1500);
+    }
+
+    function resetLeaderboard(){
+      leaderboard = Array.from({ length: 200 }).map((_,i)=>{
+        const wallet = '0x' + randHex(6) + (1000+i);
+        const pnl = +(Math.random()*90000 - 20000).toFixed(2);
+        const volume = +(Math.random()*400000).toFixed(2);
+        return { rank: i+1, wallet, pnl, volume };
+      });
+      renderLeaderboard();
+    }
+
+    // export CSV
+    function downloadLeaderboard(){
+      const rows = [['rank','wallet','pnl','volume'], ...leaderboard.map(r=>[r.rank,r.wallet,r.pnl,r.volume])];
+      const csv = rows.map(r => r.join(',')).join('\\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'leaderboard.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // helper: click on wallet in leaderboard prefills explorer
+    function prefillExplorer(wallet){
+      showSection('explorer');
+      document.getElementById('addrInput').value = wallet;
+      fetchWallet();
+    }
+
+    // start stream on load
+    renderLeaderboard();
+    startLeaderboardStream();
+
+    /*******************************
+     * Initialize default view
+     *******************************/
+    // show quiz by default already active
+    // expose some globals for debugging
+    window._glider = { leaderboard, resetLeaderboard, startLeaderboardStream, fetchWallet, mockWalletData };
+  </script>
+</body>
+</html>
