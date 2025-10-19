@@ -22,11 +22,11 @@
       background: var(--bg-main);
       color: var(--text-light);
       font-family: 'Poppins', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      padding:20px;
     }
     .container {
       width:100%;
@@ -64,13 +64,8 @@
       from { opacity:0; transform: translateY(20px); }
       to   { opacity:1; transform: translateY(0); }
     }
-    .intro {
-      text-align:center;
-    }
-    .intro h2 {
-      font-size:1.9rem;
-      margin-bottom:14px;
-    }
+    .intro { text-align:center; }
+    .intro h2 { font-size:1.9rem; margin-bottom:14px; }
     .intro p {
       font-size:1rem;
       line-height:1.6;
@@ -90,10 +85,8 @@
       cursor:pointer;
       transition: background var(--transition), transform var(--transition);
     }
-    .btn:hover {
-      background: var(--accent1);
-      transform: translateY(-2px);
-    }
+    .btn:hover { background: var(--accent1); transform: translateY(-2px); }
+    .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--text-light); }
     .loader {
       display:flex;
       justify-content:center;
@@ -111,45 +104,13 @@
     }
     .loader span:nth-child(2){ animation-delay:0.2s; }
     .loader span:nth-child(3){ animation-delay:0.4s; }
-    @keyframes bounce {
-      to { transform: translateY(-15px); opacity:0.6; }
-    }
-    .question-counter {
-      text-align:center;
-      color: var(--text-muted);
-      margin-bottom:20px;
-      font-size:0.95rem;
-    }
-    .progress-bar {
-      width:100%;
-      height:10px;
-      background: var(--border-color);
-      border-radius:5px;
-      overflow:hidden;
-      margin-bottom:30px;
-    }
-    .progress-fill {
-      height:100%;
-      width:0%;
-      background: var(--accent1);
-      transition: width var(--transition);
-    }
-    .question-card {
-      background: var(--card-bg);
-      padding:28px;
-      border:1px solid var(--border-color);
-      border-radius: var(--radius);
-      margin-bottom:30px;
-    }
-    .question-card h3 {
-      font-size:1.4rem;
-      margin-bottom:22px;
-      color: var(--text-light);
-    }
-    .options {
-      display:grid;
-      gap:16px;
-    }
+    @keyframes bounce { to { transform: translateY(-15px); opacity:0.6; } }
+    .question-counter { text-align:center; color: var(--text-muted); margin-bottom:20px; font-size:0.95rem; }
+    .progress-bar { width:100%; height:10px; background: var(--border-color); border-radius:5px; overflow:hidden; margin-bottom:30px; }
+    .progress-fill { height:100%; width:0%; background: var(--accent1); transition: width var(--transition); }
+    .question-card { background: var(--card-bg); padding:28px; border:1px solid var(--border-color); border-radius: var(--radius); margin-bottom:30px; }
+    .question-card h3 { font-size:1.4rem; margin-bottom:22px; color: var(--text-light); }
+    .options { display:grid; gap:16px; }
     .option {
       padding:18px 22px;
       background:#2b3038;
@@ -158,29 +119,11 @@
       cursor:pointer;
       transition: background var(--transition), border-color var(--transition);
     }
-    .option:hover {
-      background:#323a45;
-      border-color: var(--accent1);
-    }
-    .option.correct {
-      border-color:#51cf66;
-      background:rgba(81,207,102,0.15);
-    }
-    .option.incorrect {
-      border-color:#f03e3e;
-      background:rgba(240,62,62,0.15);
-    }
-    .feedback {
-      text-align:center;
-      margin-top:22px;
-      font-size:1rem;
-      font-weight:600;
-      display:none;
-    }
-    .results {
-      text-align:center;
-      padding:40px 30px;
-    }
+    .option:hover { background:#323a45; border-color: var(--accent1); }
+    .option.correct { border-color:#51cf66; background:rgba(81,207,102,0.15); }
+    .option.incorrect { border-color:#f03e3e; background:rgba(240,62,62,0.15); }
+    .feedback { text-align:center; margin-top:22px; font-size:1rem; font-weight:600; display:none; }
+    .results { text-align:center; padding:40px 30px; }
     .results .score {
       font-size:3.4rem;
       background: linear-gradient(45deg, var(--accent2), var(--accent1));
@@ -188,16 +131,8 @@
       -webkit-text-fill-color:transparent;
       margin:30px 0;
     }
-    .results .message {
-      font-size:1.3rem;
-      color: var(--text-light);
-      margin-bottom:24px;
-    }
-    #chartContainer {
-      width:100%;
-      max-width:480px;
-      margin:0 auto 30px;
-    }
+    .results .message { font-size:1.3rem; color: var(--text-light); margin-bottom:24px; }
+    #chartContainer { width:100%; max-width:480px; margin:0 auto 30px; }
     @media(max-width:600px){
       .header h1 { font-size:2.2rem; }
       .intro h2 { font-size:1.6rem; }
@@ -211,29 +146,29 @@
 <body>
   <div class="container">
 
-    <!-- Top Referral Link Section -->
+    <!-- Top Referral Link Section (updated to lighter.xyz) -->
     <div style="text-align:center; padding:20px; background: var(--card-bg);">
-      <a href="https://app.lighter.xyz" target="_blank" style="
+      <a href="https://lighter.xyz/" target="_blank" style="
             font-size:1.2rem;
             color: var(--accent2);
             text-decoration:none;
             font-weight:600;
           ">
-        Join Lighter
+        Open Lighter
       </a>
     </div>
 
     <div class="header">
-      <h1>Glider IQ Challenge</h1>
-      <p>Test your knowledge on general topics — now with new questions</p>
+      <h1>Lighter IQ Challenge</h1>
+      <p>Test your knowledge on Lighter, ZK infrastructure & DeFi insights</p>
     </div>
 
     <!-- Start / Intro Screen -->
     <div id="start-screen" class="section active">
       <div class="intro">
-        <h2>Welcome</h2>
+        <h2>Project Overview</h2>
         <p>
-          This quiz will test general knowledge across geography, science and history. Click start when you're ready.
+          Welcome to the <strong>Lighter IQ Challenge</strong> — an interactive quiz crafted to test your understanding of the Lighter ecosystem and its core features. Dive in and test your knowledge!
         </p>
       </div>
       <div style="text-align:center">
@@ -284,61 +219,67 @@
   </div>
 
   <script>
-    // Replaced quiz data with the QuizMaster/general knowledge questions
+    // 10 MCQs about Lighter (correct answers are zero-based indices)
     const quizData = [
       {
-        q: "What is the capital of India?",
-        o: ["Mumbai", "New Delhi", "Kolkata", "Chennai"],
+        q: "What type of exchange is Lighter described as?",
+        o: [
+          "Centralized exchange (CEX)",
+          "Fully verifiable decentralized exchange built with custom ZK infrastructure",
+          "Peer-to-peer only exchange",
+          "Traditional broker‐dealer platform"
+        ],
         c: 1
       },
       {
-        q: "Which planet is known as the Red Planet?",
-        o: ["Venus", "Mars", "Jupiter", "Saturn"],
-        c: 1
-      },
-      {
-        q: "What is the largest mammal in the world?",
-        o: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
-        c: 1
-      },
-      {
-        q: "Who painted the Mona Lisa?",
-        o: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+        q: "Lighter is built on top of which blockchain?",
+        o: ["Bitcoin", "Solana", "Ethereum", "Polkadot"],
         c: 2
       },
       {
-        q: "What is the chemical symbol for gold?",
-        o: ["Go", "Gd", "Au", "Ag"],
-        c: 2
-      },
-      {
-        q: "Which is the smallest country in the world?",
-        o: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+        q: "What is one of the key focuses of Lighter’s infrastructure?",
+        o: ["High trading fees", "Low latency and high throughput", "Manual settlement only", "Off-chain only trades with no proofs"],
         c: 1
       },
       {
-        q: "What is the fastest land animal?",
-        o: ["Lion", "Cheetah", "Leopard", "Tiger"],
+        q: "Which mechanism does Lighter use to ensure the correctness of operations like order matching and liquidations?",
+        o: ["Trusted third party audit only", "Manual human verification", "Zero-knowledge (ZK) proofs", "No verification mechanism"],
+        c: 2
+      },
+      {
+        q: "According to the site, what is one benefit for retail traders using Lighter?",
+        o: ["High minimum deposits", "Zero fees for retail traders", "Only institutional access", "Mandatory subscription fees"],
         c: 1
       },
       {
-        q: "Which ocean is the largest?",
-        o: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
-        c: 3
+        q: "The site says that Lighter processes how many orders and cancels per second (or at that scale)?",
+        o: ["A handful of orders per second", "Tens of thousands of orders and cancels per second", "Thousands of orders per hour", "Millions of orders per minute"],
+        c: 1
       },
       {
-        q: "What is the hardest natural substance on Earth?",
-        o: ["Gold", "Iron", "Diamond", "Platinum"],
+        q: "With Lighter, who remains in control of the user’s funds under its model?",
+        o: ["Lighter holds all funds centrally", "A third-party custodian holds funds", "Users retain control via Ethereum layer and proofs", "Funds are held purely off-chain without on-chain settlement"],
         c: 2
       },
       {
-        q: "How many continents are there?",
-        o: ["5", "6", "7", "8"],
+        q: "Lighter’s base layer for proofs and state changes is:",
+        o: ["Binance Smart Chain", "Solana", "Ethereum", "Tezos"],
         c: 2
+      },
+      {
+        q: "According to the website, what ensures there is no censorship or favoritism in trade matching?",
+        o: ["Manual audit every trade", "Trades match by price-time priority with cryptographic proofs", "Trades only done during business hours", "Matching engine controlled by a central authority"],
+        c: 1
+      },
+      {
+        q: "One of the features of Lighter’s infrastructure is:",
+        o: ["All operations are off-chain and non-verifiable", "Matching orders and proving correctness is highly optimized for low cost", "High latency but very low cost", "Only spot trading is supported"],
+        c: 1
       }
     ];
 
-    let idx=0, correctCount=0;
+    let idx = 0;
+    let correctCount = 0;
 
     function goToLoading(){
       document.getElementById('start-screen').classList.remove('active');
@@ -406,8 +347,8 @@
       document.getElementById('corr').textContent = correctCount;
       document.getElementById('wrng').textContent = quizData.length - correctCount;
       document.getElementById('msg').textContent =
-        pct>=80 ? '🏆 Excellent! You scored great!' :
-        pct>=60 ? '👏 Good job! You did well!' :
+        pct>=80 ? '🏆 Excellent! You’re a Lighter Pro!' :
+        pct>=60 ? '👏 Great job! You know your stuff!' :
         pct>=40 ? '👍 Nice try! Keep improving!' :
         '💪 Keep practising — you’ll get better!';
       renderResultChart(correctCount, quizData.length-correctCount);
