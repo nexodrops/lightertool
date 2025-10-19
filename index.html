@@ -1,0 +1,432 @@
+// index.js
+// Single-file demo server for:
+// - Wallet Explorer (mocked) at /explorer/:address
+// - Live Leaderboard (mocked) at /leaderboard
+// - APIs: /api/wallet/:address, /api/leaderboard, /api/leaderboard/stream (SSE)
+// Run: npm install express cors && node index.js
+
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// -----------------------------
+// Utility helpers
+// -----------------------------
+function randHex(len = 8) {
+  return Math.random().toString(16).slice(2, 2 + len);
+}
+function fmt(n) {
+  if (typeof n !== 'number') return n;
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+function nowISO() {
+  return new Date().toISOString();
+}
+
+// -----------------------------
+// Mock APIs
+// -----------------------------
+
+// Wallet summary + positions (mock)
+app.get('/api/wallet/:address', (req, res) => {
+  const address = req.params.address || '';
+  if (!address || address.length < 3) {
+    return res.status(400).json({ error: 'Invalid address' });
+  }
+
+  const now = Date.now();
+
+  // Mock positions
+  const positions = [
+    {
+      id: `pos-${randHex(6)}`,
+      market: 'BTC-PERP',
+      side: 'LONG',
+      size: 0.35,
+      entryPrice: 63500,
+      markPrice: 63840,
+      collateral: 1800,
+      leverage: 5,
+      unrealizedPnl: +( (63840 - 63500) * 0.35 ).toFixed(2),
+      realizedPnl: 120,
+      liquidationPrice: 58750,
+      updatedAt: now
+    },
+    {
+      id: `pos-${randHex(6)}`,
+      market: 'SOL-PERP',
+      side: 'SHORT',
+      size: 95,
+      entryPrice: 142,
+      markPrice: 137,
+      collateral: 720,
+      leverage: 7,
+      unrealizedPnl: +( (142 - 137) * 95 ).toFixed(2),
+      realizedPnl: -18,
+      liquidationPrice: 170,
+      updatedAt: now
+    }
+  ];
+
+  const summary = {
+    address,
+    equity: 15230.47,
+    marginUsed: 2520,
+    freeMargin: 12710.47,
+    marginRatio: +( (2520 / 15230.47) * 100 ).toFixed(2),
+    totalRealizedPnl: 450,
+    totalUnrealizedPnl: +(positions.reduce((s,p)=>s+(p.unrealizedPnl||0),0)).toFixed(2),
+    positionsCount: positions.length,
+    lastSeen: nowISO()
+  };
+
+  // small cache hint
+  res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=59');
+  return res.json({ summary, positions });
+});
+
+// Leaderboard snapshot (mock top N)
+app.get('/api/leaderboard', (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit || '200', 10), 200);
+  const rows = Array.from({ length: limit }).map((_, i) => {
+    const rank = i + 1;
+    const wallet = '0x' + randHex(6) + (1000 + rank);
+    const pnl = +(Math.random() * 90000 - 15000).toFixed(2);
+    const volume = +(Math.random() * 300000).toFixed(2);
+    const roi = +(Math.random() * 600 - 100).toFixed(2);
+    return { rank, wallet, pnl, volume, roi };
+  });
+  res.setHeader('Cache-Control', 's-maxage=5, stale-while-revalidate=59');
+  return res.json({ rows, generatedAt: nowISO() });
+});
+
+// -----------------------------
+// SSE stream for leaderboard
+// -----------------------------
+const sseClients = new Set();
+
+// Create a simple in-memory leaders list to update and stream
+let leaders = Array.from({ length: 50 }).map((_, i) => ({
+  rank: i + 1,
+  wallet: '0x' + randHex(6) + (1000 + i),
+  pnl: +(Math.random() * 80000 - 10000).toFixed(2)
+}));
+
+app.get('/api/leaderboard/stream', (req, res) => {
+  // headers for SSE
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+
+  // send initial comment
+  res.write(`: connected ${randHex(4)}\n\n`);
+
+  // push snapshot initially
+  res.write(`data: ${JSON.stringify({ type: 'snapshot', leaders })}\n\n`);
+
+  sseClients.add(res);
+
+  // cleanup on close
+  req.on('close', () => {
+    sseClients.delete(res);
+  });
+});
+
+// background update: every ~1500ms mutate random leader and broadcast delta
+setInterval(() => {
+  // mutate
+  const idx = Math.floor(Math.random() * leaders.length);
+  const delta = (Math.random() * 4000 - 2000); // +/- up to 2k
+  leaders[idx].pnl = +(leaders[idx].pnl + delta).toFixed(2);
+
+  // resort and reassign ranks
+  leaders.sort((a,b) => b.pnl - a.pnl);
+  leaders.forEach((l, i) => l.rank = i + 1);
+
+  // pick the changed leader and build payload
+  const changed = leaders[idx];
+  const payload = { type: 'update', wallet: changed.wallet, rank: changed.rank, pnl: changed.pnl, ts: Date.now() };
+
+  // broadcast to all clients
+  const payloadStr = `data: ${JSON.stringify(payload)}\n\n`;
+  for (const client of sseClients) {
+    try { client.write(payloadStr); } catch (e) { /* ignore */ }
+  }
+}, 1500);
+
+// heartbeat comments to keep connections alive
+setInterval(() => {
+  const comment = `: heartbeat ${Date.now()}\n\n`;
+  for (const client of sseClients) {
+    try { client.write(comment); } catch(e) {}
+  }
+}, 20000);
+
+// -----------------------------
+// Frontend pages (simple HTML) 
+// -----------------------------
+
+// Home - small index
+app.get('/', (req, res) => {
+  res.send(`
+  <html>
+    <head><title>Glider Explorer — Demo</title>
+      <meta charset="utf-8" />
+      <style>
+        body{background:#071026;color:#e6eef8;font-family:Inter,system-ui,Arial;padding:28px}
+        a{color:#9fbec0}
+        .card{background:#071426;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+      </style>
+    </head>
+    <body>
+      <h2>Glider — Explorer Demo</h2>
+      <div class="card">
+        <p>Demo includes Wallet Explorer and Live Leaderboard (mock data + SSE).</p>
+        <ul>
+          <li><a href="/explorer/0x1234abcd">/explorer/0x1234abcd</a> — Wallet explorer (mock)</li>
+          <li><a href="/leaderboard">/leaderboard</a> — Live leaderboard (SSE)</li>
+          <li><a href="/api/leaderboard">/api/leaderboard</a> — JSON snapshot</li>
+        </ul>
+      </div>
+    </body>
+  </html>
+  `);
+});
+
+// Wallet explorer page (client fetches /api/wallet/:address)
+app.get('/explorer/:address', (req, res) => {
+  const address = req.params.address;
+  res.send(`
+  <!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <title>Explorer — ${address}</title>
+      <style>
+        body{background:#071026;color:#e6eef8;font-family:Inter,system-ui,Arial;padding:22px}
+        .wrap{max-width:1100px;margin:0 auto}
+        .small{font-size:13px;color:#9fbec0}
+        .card{background:#071426;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:12px}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:8px;text-align:left;font-size:13px}
+        thead th{color:#9fbec0}
+        tr + tr { border-top:1px solid rgba(255,255,255,0.02) }
+        .btn{background:#0ea5a0;color:#032626;padding:8px 10px;border-radius:8px;text-decoration:none}
+        input[type=range]{width:100%}
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2>Address Explorer — ${address}</h2>
+          <a class="btn" href="/leaderboard">Open Leaderboard</a>
+        </div>
+
+        <div id="summary" class="card">Loading wallet summary…</div>
+
+        <div id="positions" class="card">Loading positions…</div>
+
+        <div class="card">
+          <h4 class="small">Quick PnL Simulator</h4>
+          <div style="margin-top:8px">
+            <label class="small">Adjust mark price by %</label>
+            <input id="adjRange" type="range" min="-10" max="10" step="0.1" value="0" />
+            <div class="small" id="adjLabel">Adj: 0%</div>
+            <div id="simResults" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+        <div class="small">Note: This demo uses mock data. Replace backend endpoints with your indexer/DB to show live data.</div>
+      </div>
+
+      <script>
+        const address = "${address}";
+        async function load() {
+          const r = await fetch('/api/wallet/' + address);
+          const j = await r.json();
+          renderSummary(j.summary);
+          renderPositions(j.positions);
+          setupSimulator(j.positions);
+        }
+        function renderSummary(s){
+          document.getElementById('summary').innerHTML = \`
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="small">Equity</div>
+                <div style="font-weight:700;font-size:20px">$ \${(s.equity).toLocaleString()}</div>
+              </div>
+              <div style="text-align:right">
+                <div class="small">Margin Used</div>
+                <div style="font-weight:700">$ \${(s.marginUsed).toLocaleString()}</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:10px">
+              <div style="padding:8px;background:#061427;border-radius:8px">
+                <div class="small">Free Margin</div>
+                <div style="font-weight:700">$ \${(s.freeMargin).toLocaleString()}</div>
+              </div>
+              <div style="padding:8px;background:#061427;border-radius:8px">
+                <div class="small">Unrealized PnL</div>
+                <div style="font-weight:700">$ \${Number(s.totalUnrealizedPnl).toFixed(2)}</div>
+              </div>
+            </div>
+          \`;
+        }
+        function renderPositions(positions){
+          const rows = positions.map(p=>\`
+            <tr>
+              <td>\${p.market}</td>
+              <td>\${p.side}</td>
+              <td>\${p.size}</td>
+              <td>$\${p.entryPrice}</td>
+              <td>$\${p.markPrice}</td>
+              <td>$\${Number(p.unrealizedPnl).toFixed(2)}</td>
+              <td>$\${p.collateral}</td>
+            </tr>
+          \`).join('');
+          document.getElementById('positions').innerHTML = \`
+            <h3>Open Positions (\${positions.length})</h3>
+            <div style="background:#061424;padding:8px;border-radius:8px">
+              <table>
+                <thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Entry</th><th>Mark</th><th>Unrealized</th><th>Collat</th></tr></thead>
+                <tbody>\${rows}</tbody>
+              </table>
+            </div>
+          \`;
+        }
+
+        function setupSimulator(positions){
+          const range = document.getElementById('adjRange');
+          const label = document.getElementById('adjLabel');
+          const out = document.getElementById('simResults');
+          function update(){
+            const adj = Number(range.value);
+            label.innerText = 'Adj: ' + adj + '%';
+            out.innerHTML = positions.map(p=>{
+              const newMark = p.markPrice * (1 + adj/100);
+              const newUnreal = p.side === 'LONG' ? (newMark - p.entryPrice) * p.size : (p.entryPrice - newMark) * p.size;
+              return '<div style="padding:8px;border-radius:8px;background:#061022;margin-top:8px"><div style="font-weight:700">'+p.market+' — '+p.side+'</div><div class="small">Mark: $'+newMark.toFixed(2)+' • New Unrealized: $'+newUnreal.toFixed(2)+'</div></div>';
+            }).join('');
+          }
+          range.addEventListener('input', update);
+          update();
+        }
+
+        load();
+      </script>
+    </body>
+  </html>
+  `);
+});
+
+// Leaderboard UI page
+app.get('/leaderboard', (req, res) => {
+  res.send(`
+  <!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <title>Live Leaderboard</title>
+      <style>
+        body{background:#071026;color:#e6eef8;font-family:Inter,system-ui,Arial;padding:22px}
+        .wrap{max-width:1100px;margin:0 auto}
+        .card{background:#071426;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:12px}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:8px;text-align:left;font-size:13px}
+        thead th{color:#9fbec0}
+        tr + tr { border-top:1px solid rgba(255,255,255,0.02) }
+        a{color:#9fbec0}
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <h2>Live Leaderboard — Top 200 (Mock)</h2>
+        <div class="card">
+          <table id="board">
+            <thead><tr><th>#</th><th>Wallet</th><th>PnL</th><th>Volume</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="small">Stream: <code>/api/leaderboard/stream</code> (SSE). This is a demo mock stream — replace with your stream for production.</div>
+      </div>
+
+      <script>
+        async function loadSnapshot(){
+          const r = await fetch('/api/leaderboard');
+          const j = await r.json();
+          const rows = j.rows.slice(0,200);
+          renderRows(rows);
+        }
+        function renderRows(rows){
+          const tbody = document.getElementById('tbody');
+          tbody.innerHTML = rows.map(r => \`<tr><td>\${r.rank}</td><td><a href="/explorer/\${r.wallet}">\${r.wallet}</a></td><td>$\${Number(r.pnl).toLocaleString()}</td><td>$\${Number(r.volume).toLocaleString()}</td></tr>\`).join('');
+        }
+
+        // SSE subscribe
+        function subscribeSSE(){
+          const es = new EventSource('/api/leaderboard/stream');
+          es.onmessage = (e) => {
+            try {
+              const payload = JSON.parse(e.data);
+              if (payload.type === 'snapshot') {
+                // on snapshot, render initial leaders
+                const rows = payload.leaders.map((l,i)=>({ rank: i+1, wallet: l.wallet, pnl: l.pnl, volume: 0 }));
+                renderRows(rows);
+              } else if (payload.type === 'update') {
+                // simple client side patch: find row and update pnl, then re-sort
+                patchUpdate(payload);
+              }
+            } catch(err) {
+              console.error('SSE parse error', err);
+            }
+          };
+          es.onerror = (err) => { console.error('SSE error', err); es.close(); }
+        }
+
+        function patchUpdate(payload){
+          const tbody = document.getElementById('tbody');
+          // read existing rows into array
+          const rows = Array.from(tbody.querySelectorAll('tr')).map(tr => {
+            return {
+              rank: Number(tr.children[0].innerText),
+              wallet: tr.children[1].innerText,
+              pnl: Number(tr.children[2].innerText.replace(/[^0-9.-]+/g,"")),
+              volume: Number(tr.children[3].innerText.replace(/[^0-9.-]+/g,""))
+            };
+          });
+
+          // find if wallet exists
+          const idx = rows.findIndex(r => r.wallet === payload.wallet);
+          if (idx >= 0) {
+            rows[idx].pnl = payload.pnl;
+          } else {
+            rows.push({ rank: rows.length + 1, wallet: payload.wallet, pnl: payload.pnl, volume: 0 });
+          }
+          // sort desc by pnl and trim to 200
+          rows.sort((a,b)=>b.pnl - a.pnl);
+          const trimmed = rows.slice(0,200).map((r,i)=>({ ...r, rank: i+1 }));
+          // render
+          renderRows(trimmed);
+        }
+
+        // initial
+        loadSnapshot();
+        subscribeSSE();
+      </script>
+    </body>
+  </html>
+  `);
+});
+
+// -----------------------------
+// Start server
+// -----------------------------
+app.listen(PORT, () => {
+  console.log(`Glider-demo server running on http://localhost:${PORT}`);
+  console.log(`Explorer example: http://localhost:${PORT}/explorer/0x1234abcd`);
+  console.log(`Leaderboard: http://localhost:${PORT}/leaderboard`);
+});
