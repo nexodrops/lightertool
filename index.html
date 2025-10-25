@@ -41,12 +41,12 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
+      gap:06px;
       padding:12px 18px;
       background:linear-gradient(90deg,var(--accent-cyan),var(--accent-mint));
     }
-    .brand { display:flex; gap:12px; align-items:center; }
-    .brand img { height:40px; width:auto; display:block; }
+    .brand { display:flex; gap:06px; align-items:center; }
+    .brand img { height:60px; width:auto; display:block; }
     .title h1{ font-size:1.25rem; margin:0; color:#012; font-weight:700; }
     .title p{ margin:0; color:#012; font-size:0.85rem; font-weight:600; opacity:0.95; }
 
@@ -145,14 +145,14 @@
 
     <div class="header">
       <h1>Lighter IQ Challenge</h1>
-      <p>Test your knowledge on Lighter — ZK rollup, matching, proofs and architecture.</p>
+      <p>Test your knowledge on Lighter, ZK infrastructure & DeFi Exchange insights</p>
     </div>
 
     <!-- START -->
     <div id="start" class="section active">
       <div class="intro">
         <h2>Choose a level</h2>
-        <p>Select a level below — each level contains 10 questions from public Lighter materials.</p>
+        <p>Select a level below — each level contains 10 questions.</p>
       </div>
 
       <div class="levels" id="levels">
@@ -185,8 +185,8 @@
       </div>
 
       <div class="controls">
-        <button id="nextBtn" class="btn" disabled>Next</button>
-        <button id="endBtn" class="btn ghost">End Early</button>
+        <button class="btn ghost" id="endBtn">End Early</button>
+        <button class="btn" id="nextBtn" disabled>Next</button>
       </div>
     </div>
 
