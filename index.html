@@ -41,11 +41,11 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:08px;
+      gap:06px;
       padding:12px 18px;
       background:linear-gradient(90deg,var(--accent-cyan),var(--accent-mint));
     }
-    .brand { display:flex; gap:08px; align-items:center; }
+    .brand { display:flex; gap:06px; align-items:center; }
     .brand img { height:60px; width:auto; display:block; }
     .title h1{ font-size:1.25rem; margin:0; color:#012; font-weight:700; }
     .title p{ margin:0; color:#012; font-size:0.85rem; font-weight:600; opacity:0.95; }
@@ -60,8 +60,9 @@
       text-decoration:none;
     }
 
+    /* Header slightly reduced padding so choose-level sits closer */
     .header{
-      padding:28px 22px;
+      padding:16px 22px 8px 22px; /* top right bottom left — bottom smaller */
       text-align:center;
       background:linear-gradient(180deg, rgba(2,34,41,0.04), transparent);
     }
@@ -72,11 +73,13 @@
     .section.active{ display:block; animation:fadeIn .32s var(--trans); }
     @keyframes fadeIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 
-    .intro { text-align:center; margin-bottom:12px; }
+    /* Move choose-level up: reduce intro spacing and nudge levels upward */
+    .intro { text-align:center; margin-bottom:8px; margin-top:-14px; } /* negative top to pull up */
     .intro h2{ font-size:1.4rem; margin-bottom:8px; }
-    .intro p{ color:var(--text-muted); max-width:720px; margin:0 auto 18px; line-height:1.5 }
+    .intro p{ color:var(--text-muted); max-width:720px; margin:0 auto 12px; line-height:1.5 }
 
-    .levels{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:14px;}
+    /* small upward nudge for the levels themselves */
+    .levels{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin: -6px 0 10px 0; } /* negative top margin */
     .level-btn{
       padding:9px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
       background:transparent;color:var(--text-light);cursor:pointer;font-weight:600;
@@ -119,9 +122,11 @@
     .footer{ padding:12px 18px; text-align:center; color:var(--text-muted); background:var(--card-bg) }
 
     @media(max-width:680px){
-      .brand img{height:32px}
+      .brand img{height:48px}
       .header h1{ font-size:1.5rem }
       .btn{ padding:10px 20px }
+      .intro { margin-top:-8px }
+      .levels{ margin-top:-4px }
     }
   </style>
 
