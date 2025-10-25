@@ -37,6 +37,7 @@
       box-shadow:0 18px 40px rgba(0,0,0,.6);
     }
 
+    /* Topbar */
     .topbar {
       display:flex;
       align-items:center;
@@ -46,7 +47,13 @@
       background:linear-gradient(90deg,var(--accent-cyan),var(--accent-mint));
     }
     .brand { display:flex; gap:12px; align-items:center; }
-    .brand img { height:40px; width:auto; display:block; }
+    .logo-wrap { display:flex; align-items:center; gap:12px; }
+    .brand img { height:40px; width:auto; display:block; border-radius:8px; background:transparent; }
+    /* classes for logo sizes */
+    .logo-sm { height:26px !important; }
+    .logo-md { height:40px !important; }
+    .logo-lg { height:64px !important; }
+
     .title h1{ font-size:1.25rem; margin:0; color:#012; font-weight:700; }
     .title p{ margin:0; color:#012; font-size:0.85rem; font-weight:600; opacity:0.95; }
 
@@ -60,23 +67,34 @@
       text-decoration:none;
     }
 
+    /* header */
     .header{
-      padding:28px 22px;
+      padding:18px 22px 6px 22px;
       text-align:center;
       background:linear-gradient(180deg, rgba(2,34,41,0.04), transparent);
     }
-    .header h1{ font-size:2rem; margin:0; color:var(--text-light); letter-spacing:0.4px; }
-    .header p{ margin-top:8px; color:var(--text-muted); }
+    .header h1{ font-size:1.8rem; margin:0; color:var(--text-light); letter-spacing:0.4px; }
+    .header p{ margin-top:8px; color:var(--text-muted); margin-bottom:10px; }
 
-    .section{ padding:20px; display:none; }
+    /* Choose-level area moved up (near header) */
+    .choose-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 22px 18px 22px; }
+    .choose-left { display:flex; gap:12px; align-items:center; }
+    .choose-left h2 { font-size:1.15rem; margin:0; color:var(--text-light); }
+    .choose-left .sub { color:var(--text-muted); font-size:0.95rem; }
+
+    .choose-controls { display:flex; gap:8px; align-items:center; }
+
+    .size-btn {
+      padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);
+      background:transparent;color:var(--text-light);cursor:pointer;font-weight:600;font-size:0.9rem;
+    }
+    .size-btn.sel { background:linear-gradient(90deg,var(--accent-cyan),var(--accent-mint)); color:#012; border:none; }
+
+    .section{ padding:0 20px 20px 20px; display:none; }
     .section.active{ display:block; animation:fadeIn .32s var(--trans); }
     @keyframes fadeIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 
-    .intro { text-align:center; margin-bottom:12px; }
-    .intro h2{ font-size:1.4rem; margin-bottom:8px; }
-    .intro p{ color:var(--text-muted); max-width:720px; margin:0 auto 18px; line-height:1.5 }
-
-    .levels{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:14px;}
+    .levels{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:8px;}
     .level-btn{
       padding:9px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
       background:transparent;color:var(--text-light);cursor:pointer;font-weight:600;
@@ -93,7 +111,7 @@
     .loader span:nth-child(3){ animation-delay:.24s }
     @keyframes bounce{ to{ transform:translateY(-12px); opacity:.6 } }
 
-    .question-counter{ text-align:center;color:var(--text-muted); margin-bottom:12px }
+    .question-counter{ text-align:center;color:var(--text-muted); margin:12px 0; font-size:0.95rem }
     .progress-bar{ width:100%;height:10px;background:var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px}
     .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent-cyan),var(--accent-mint)); transition:width var(--trans) }
 
@@ -120,7 +138,8 @@
 
     @media(max-width:680px){
       .brand img{height:32px}
-      .header h1{ font-size:1.5rem }
+      .header h1{ font-size:1.3rem }
+      .choose-left h2{ font-size:1rem }
       .btn{ padding:10px 20px }
     }
   </style>
@@ -131,40 +150,57 @@
 </head>
 <body>
   <div class="container">
+    <!-- topbar -->
     <div class="topbar">
       <div class="brand">
-        <!-- make sure icon_glow.png is present next to this HTML file -->
-        <img src="icon_glow.png" alt="Lighter logo" />
-        <div class="title">
-          <h1>Lighter IQ Challenge</h1>
-          <p>50 questions — 5 levels (Beginner → Expert)</p>
+        <div class="logo-wrap">
+          <!-- image file should be icon_glow.png in the same folder as this HTML -->
+          <img id="siteLogo" src="icon_glow.png" alt="Lighter logo" class="logo-md" />
+          <div class="title">
+            <h1>Lighter IQ Challenge</h1>
+            <p>50 questions — 5 levels (Beginner → Expert)</p>
+          </div>
         </div>
       </div>
+
       <div class="toplink"><a href="https://app.lighter.xyz/" target="_blank" rel="noopener">Open Lighter</a></div>
     </div>
 
+    <!-- header -->
     <div class="header">
       <h1>Lighter IQ Challenge</h1>
       <p>Test your knowledge on Lighter — ZK rollup, matching, proofs and architecture.</p>
     </div>
 
+    <!-- choose-level row (moved up) -->
+    <div class="choose-row">
+      <div class="choose-left">
+        <h2>Choose a level</h2>
+        <div class="sub" style="margin-left:10px;color:var(--text-muted)">Select a section — each has 10 questions.</div>
+      </div>
+
+      <div class="choose-controls">
+        <div style="display:flex;align-items:center;gap:8px;margin-right:6px;color:var(--text-muted)">Logo size:</div>
+        <button class="size-btn sel" data-size="sm" id="sizeSm">Small</button>
+        <button class="size-btn" data-size="md" id="sizeMd">Medium</button>
+        <button class="size-btn" data-size="lg" id="sizeLg">Large</button>
+      </div>
+    </div>
+
     <!-- START -->
     <div id="start" class="section active">
-      <div class="intro">
-        <h2>Choose a level</h2>
-        <p>Select a level below — each level contains 10 questions from public Lighter materials.</p>
-      </div>
+      <div style="padding:0 20px 18px 20px">
+        <div class="levels" id="levels">
+          <button class="level-btn sel" data-level="Beginner">Beginner</button>
+          <button class="level-btn" data-level="Novice">Novice</button>
+          <button class="level-btn" data-level="Intermediate">Intermediate</button>
+          <button class="level-btn" data-level="Advanced">Advanced</button>
+          <button class="level-btn" data-level="Expert">Expert</button>
+        </div>
 
-      <div class="levels" id="levels">
-        <button class="level-btn sel" data-level="Beginner">Beginner</button>
-        <button class="level-btn" data-level="Novice">Novice</button>
-        <button class="level-btn" data-level="Intermediate">Intermediate</button>
-        <button class="level-btn" data-level="Advanced">Advanced</button>
-        <button class="level-btn" data-level="Expert">Expert</button>
-      </div>
-
-      <div style="text-align:center;margin-bottom:8px">
-        <button id="startBtn" class="btn">Start Quiz (Beginner)</button>
+        <div style="text-align:center;margin-bottom:8px">
+          <button id="startBtn" class="btn">Start Quiz (Beginner)</button>
+        </div>
       </div>
     </div>
 
@@ -295,6 +331,29 @@
     const endBtn = document.getElementById('endBtn');
     const playAgainBtn = document.getElementById('playAgain');
 
+    // logo size controls
+    const logo = document.getElementById('siteLogo');
+    const sizeSm = document.getElementById('sizeSm');
+    const sizeMd = document.getElementById('sizeMd');
+    const sizeLg = document.getElementById('sizeLg');
+    const sizeButtons = [sizeSm, sizeMd, sizeLg];
+
+    function setLogoSize(size){
+      // remove all classes
+      logo.classList.remove('logo-sm','logo-md','logo-lg');
+      sizeButtons.forEach(b=>b.classList.remove('sel'));
+      if(size === 'sm'){ logo.classList.add('logo-sm'); sizeSm.classList.add('sel'); }
+      else if(size === 'md'){ logo.classList.add('logo-md'); sizeMd.classList.add('sel'); }
+      else { logo.classList.add('logo-lg'); sizeLg.classList.add('sel'); }
+    }
+
+    // initial
+    setLogoSize('md');
+
+    sizeSm.addEventListener('click', ()=> setLogoSize('sm'));
+    sizeMd.addEventListener('click', ()=> setLogoSize('md'));
+    sizeLg.addEventListener('click', ()=> setLogoSize('lg'));
+
     // level selection
     levelsEl.addEventListener('click', (e)=>{
       const btn = e.target.closest('.level-btn');
@@ -345,7 +404,7 @@
 
     function chooseOption(i, el){
       const q = questions[qidx];
-      // prevent multiple clicks
+      // prevent double clicks
       const first = document.querySelectorAll('.option')[0];
       if(first && first.style.pointerEvents === 'none') return;
       document.querySelectorAll('.option').forEach((n,j)=>{
